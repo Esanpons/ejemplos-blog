@@ -1,0 +1,38 @@
+{
+  "id": "3617c438-23f5-452b-8ba6-f2b8a7e2ede0",
+  "publisher": "Esteve Sanpons",
+  "name": "RecordRef And FieldRef",
+  "brief": "RecordRef And FieldRef",
+  "description": "RecordRef And FieldRef",
+  "privacyStatement": "https://www.aesva.es/",
+  "EULA": "https://www.aesva.es/",
+  "help": "https://www.aesva.es/",
+  "url": "https://www.aesva.es/",
+  "contextSensitiveHelpUrl": "https://www.aesva.es/",
+  "logo": "./image/logo.png",
+  "dependencies": [],
+  "screenshots": [],
+  "resourceExposurePolicy": {
+    "includeSourceInSymbolFile": false,
+    "allowDebugging": true,
+    "allowDownloadingSource": false
+  },
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "NoImplicitWith",
+    "TranslationFile"
+  ],
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 99000
+    }
+  ],
+  "version": "1.0.0.0",
+  "application": "22.0.0.0",
+  "platform": "1.0.0.0",
+  "runtime": "11.0"
+}

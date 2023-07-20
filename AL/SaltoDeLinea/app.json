@@ -1,0 +1,33 @@
+{
+  "id": "8f80241f-b325-4aad-8aeb-49b87a8dcdc9",
+  "publisher": "Esteve Sanpons Carballares",
+  "name": "",
+  "brief": "",
+  "description": "",
+  "version": "1.0.0.0",
+  "privacyStatement": "https://www.aesva.es/",
+  "EULA": "https://www.aesva.es/",
+  "help": "https://www.aesva.es/",
+  "url": "https://www.aesva.es/",
+  "contextSensitiveHelpUrl": "https://www.aesva.es/",
+  "logo": "./image/logo.png",
+  "dependencies": [],
+  "screenshots": [],
+  "application": "22.0.0.0",
+  "platform": "22.0.0.0",
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 90000
+    }
+  ],
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "NoImplicitWith",
+    "TranslationFile"
+  ],
+  "runtime": "12.0"
+}

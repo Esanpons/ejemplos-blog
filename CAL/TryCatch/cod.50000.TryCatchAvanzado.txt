@@ -1,0 +1,735 @@
+OBJECT Codeunit 50000 TryCatchAvanzado
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/11/21;
+    Time=17:55:57;
+    Modified=Yes;
+    Version List=UTILS;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            CLEARLASTERROR;
+
+            Char13 := 13;
+            Char10 := 10;
+            SaltoLinea:=FORMAT(Char13) + FORMAT(Char10);
+
+            CASE FunctionID OF
+              1 : InsertRec;
+              2 : ModifyRec;
+              3 : DeleteRec;
+              4 : ValidateRec;
+              5 : CreateWarehouseAdjustmentMovement;
+              6 : CalculateAdjustmentWarehouse;
+              7 : CreateWarehouseAdjustmentMovement; //de la funcion de ReverseCreateWarehouseMovements
+              8 : CalculateAdjustmentWarehouse; // de la funcion de ReverseCalculateAdjustmentWarehouse
+              9 : CreateItemJournal;
+              10 : CreateItemJournal; //de la funcion de ReverseCreateItemJournal
+              11 : SendSalesApprovalRequest;
+              12 : JournalReclassificationWarehouse;
+              13 : Post80;
+              14 : ReleaseSalesHeader;
+              15 : CreateInvoiceLinesFromShipment;
+              16 : CreateCreditMemoLinesFromReturnReceipt;
+            END;
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      FunctionID@1000000000 : Integer;
+      RefRef@1000000002 : RecordRef;
+      Field_Ref@1000000003 : FieldRef;
+      Value@1000000004 : Variant;
+      Char13@1000000005 : Char;
+      Char10@1000000006 : Char;
+      SaltoLinea@1000000007 : Text;
+      ItemNo@1000000017 : Code[20];
+      VariantCode@1000000016 : Code[10];
+      LotNo@1000000015 : Code[20];
+      NewLotNo@1000000023 : Code[20];
+      LocationCode@1000000014 : Code[20];
+      BinCode@1000000013 : Code[20];
+      ToBinCode@1000000022 : Code[20];
+      Qty@1000000012 : Decimal;
+      QtyBase@1000000011 : Decimal;
+      DocNo@1000000010 : Code[20];
+      Desc@1000000009 : Text[50];
+      ReasonCode@1000000008 : Code[10];
+      ExpirationDate@1000000001 : Date;
+      NewExpirationDate@1000000024 : Date;
+      WhseDocumentNo@1000000027 : Code[20];
+      JournalTemplateName@1000000021 : Code[20];
+      JournalBatchName@1000000020 : Code[20];
+      IsNegativeMov@1000000025 : Boolean;
+      NoMovToLiquidate@1000000018 : Integer;
+      SalesHeader@1000000019 : Record 36;
+      WhseItemTrackingLine@1000000026 : Record 6550;
+      SalesShipmentLine@1000000028 : Record 111;
+      ReturnReceiptLine@1000000030 : Record 6661;
+      g_SourceType@1000000036 : Integer;
+      g_SourceNo@1000000035 : Code[20];
+      g_DestinationType@1000000034 : Integer;
+      g_DestinationNo@1000000033 : Code[20];
+      g_NoSeries@1000000032 : Code[10];
+      g_Status@1000000031 : Integer;
+      g_Company@1000000029 : Text[30];
+
+    LOCAL PROCEDURE InsertRec@1000000003();
+    BEGIN
+      RefRef.INSERT(TRUE);
+    END;
+
+    LOCAL PROCEDURE ModifyRec@1000000004();
+    BEGIN
+      RefRef.MODIFY(TRUE);
+    END;
+
+    LOCAL PROCEDURE DeleteRec@1000000005();
+    VAR
+      Item@1000000000 : Record 27;
+    BEGIN
+      RefRef.DELETE(TRUE);
+    END;
+
+    LOCAL PROCEDURE ValidateRec@1000000000();
+    VAR
+      Item@1000000000 : Record 27;
+    BEGIN
+      Field_Ref.VALIDATE(Value);
+
+      IF NOT RefRef.INSERT(TRUE) THEN
+        RefRef.MODIFY(TRUE);
+    END;
+
+    LOCAL PROCEDURE CreateItemJournal@1000000019();
+    VAR
+      ItemJournalLine@1000000001 : Record 83;
+      TypeMov@1000000003 : Integer;
+      CreateReservEntry@1000000004 : Codeunit 99000830;
+      ItemJnlPostBatch@1000000006 : Codeunit 23;
+      QtySeguimiento@1000000009 : Decimal;
+      QtyBaseSeguimiento@1000000010 : Decimal;
+      TipoSeguimiento@1000000011 : Integer;
+      Subtipo@1000000012 : Integer;
+      l_PostingDate@1000000005 : Date;
+      TempItemJournalLine@1000000000 : TEMPORARY Record 83;
+    BEGIN
+      //Ajustes de los almacenes normales
+      CLEAR(ItemJournalLine);
+      l_PostingDate := WORKDATE;
+      WITH ItemJournalLine DO BEGIN
+        RESET;
+        SETRANGE("Journal Template Name", JournalTemplateName);
+        SETRANGE("Journal Batch Name", JournalBatchName);
+        IF FINDFIRST THEN
+          DELETEALL;
+
+        IF IsNegativeMov THEN BEGIN
+          TypeMov := "Entry Type"::"Negative Adjmt.";
+          TipoSeguimiento := 3;
+          Subtipo := 3;
+        END ELSE BEGIN
+          TypeMov := "Entry Type"::"Positive Adjmt.";
+          TipoSeguimiento := 3;
+          Subtipo := 2;
+        END;
+        INIT;
+        "Journal Template Name":= JournalTemplateName;
+        "Journal Batch Name":= JournalBatchName;
+
+        SetUpNewLine(TempItemJournalLine);
+
+        VALIDATE("Item No.", ItemNo);
+        VALIDATE("Location Code", LocationCode);
+        VALIDATE("Bin Code", BinCode);
+        VALIDATE(Quantity, Qty);
+
+
+        "Posting Date" := l_PostingDate;
+        "Entry Type" := TypeMov;
+        "Document Date" := l_PostingDate;
+        Description := Desc;
+
+        QtySeguimiento := Quantity;
+        QtyBaseSeguimiento := "Quantity (Base)";
+        IF IsNegativeMov THEN BEGIN
+          QtySeguimiento := QtySeguimiento;
+          QtyBaseSeguimiento := QtyBaseSeguimiento;
+        END;
+
+        IF "Document No." = ''  THEN
+          "Document No." := DocNo;
+
+        INSERT;
+
+        //Creamos los seguimientos
+        CLEAR(CreateReservEntry);
+        CreateReservEntry.CreateReservEntryFor(DATABASE::"Item Journal Line", //Numero tabla
+                                              Subtipo, // Tipos documento ejemplo 0 = oferta
+                                              "Journal Template Name" ,  //No doc o Journal Template Name
+                                              "Journal Batch Name",   // blanco o Journal Batch Name
+                                              0, // Para el numero de linea de la orden de produccion
+                                              "Line No.", //no linea
+                                              1,// cantidad por unidad de medida
+                                              QtySeguimiento,  // cantidad
+                                              QtyBaseSeguimiento, // candidad base
+                                              '', //Serie
+                                              LotNo); // Lote No
+
+        CreateReservEntry.SetDates(0D, ExpirationDate);
+
+        CreateReservEntry.CreateEntry(ItemJournalLine."Item No.",
+                                      '', //variante
+                                      "Location Code", // location
+                                      Description,
+                                      l_PostingDate, //ExpectedReceiptDate
+                                      l_PostingDate, //ShipmentDate
+                                      0, // No lo se poner 0
+                                      TipoSeguimiento); //0=Reservation,1=Tracking,2=Surplus,3=Prospect
+
+
+        IF NoMovToLiquidate <> 0 THEN BEGIN
+          IF IsNegativeMov THEN BEGIN
+            CreateReservEntry.SetApplyToEntryNo(NoMovToLiquidate);  //negativo
+          END ELSE BEGIN
+            CreateReservEntry.SetApplyFromEntryNo(NoMovToLiquidate);  //positivo
+          END;
+        END;
+
+        CLEAR(ItemJnlPostBatch);
+        ItemJnlPostBatch.RUN(ItemJournalLine);
+      END;
+    END;
+
+    LOCAL PROCEDURE CreateWarehouseAdjustmentMovement@1000000089();
+    VAR
+      WarehouseJournalLine@1000000000 : Record 7311;
+      xLoc@1000000001 : Record 14;
+      xBin@1000000002 : Record 7354;
+      xItem@1000000003 : Record 27;
+      WhseJnlReg@1000000009 : Codeunit 7301;
+      WarehouseSetup@1000000013 : Record 5769;
+      CreateReservEntry@1000000017 : Codeunit 99000830;
+    BEGIN
+      //Crear movimientos de ajustes para los almacenes avanzados.
+
+      IF ExpirationDate = 0D THEN
+        ExpirationDate := SearchExpirationDate(ItemNo,VariantCode,LotNo);
+
+      CLEAR(WhseJnlReg);
+      xLoc.GET(LocationCode);
+      xItem.GET(ItemNo);
+
+      WITH WarehouseJournalLine DO BEGIN
+        INIT;
+        "Item No." := xItem."No.";
+        "Unit of Measure Code" := xItem."Base Unit of Measure";
+        "Location Code":= xLoc.Code;
+
+        "Entry Type" := "Entry Type"::Movement;
+        Quantity :=Qty;
+        "Qty. (Base)" := QtyBase;
+        "Qty. (Absolute)" := ABS(Qty);
+        "Qty. (Absolute, Base)" := ABS(QtyBase);
+
+        "Qty. per Unit of Measure" := 1;
+        "Whse. Document No." := DocNo;
+        "Registering Date" := WORKDATE;
+        "Lot No." := LotNo;
+        "Expiration Date" := ExpirationDate;
+
+        "Whse. Document No." := DocNo;
+        Description := Desc;
+        "Reason Code" := ReasonCode;
+
+        IF Quantity < 0 THEN
+          xBin.GET(xLoc.Code,BinCode)
+        ELSE
+          xBin.GET(xLoc.Code,xLoc."Adjustment Bin Code");
+
+        "From Bin Type Code" := xBin."Bin Type Code";
+        "From Zone Code" := xBin."Zone Code";
+        "From Bin Code" := xBin.Code;
+
+        IF Quantity < 0 THEN
+          xBin.GET(xLoc.Code,xLoc."Adjustment Bin Code")
+        ELSE
+          xBin.GET(xLoc.Code,BinCode);
+
+        "To Zone Code" := xBin."Zone Code";
+        "To Bin Code" := xBin.Code;
+
+        WhseJnlReg.RUN(WarehouseJournalLine);
+      END;
+    END;
+
+    LOCAL PROCEDURE CalculateAdjustmentWarehouse@1000000057();
+    VAR
+      ItemJournalLine@1000000000 : Record 83;
+      CalcWhseAdjmt@1000000005 : Report 7315;
+      Item@1000000008 : Record 27;
+      ItemJnlPostBatch@1000000009 : Codeunit 23;
+      ReservationEntry@1000000006 : Record 337;
+    BEGIN
+      IF ExpirationDate = 0D THEN
+        ExpirationDate := SearchExpirationDate(ItemNo,VariantCode,LotNo);
+
+      WITH ItemJournalLine DO BEGIN
+        SETRANGE("Journal Template Name", JournalTemplateName);
+        SETRANGE("Journal Batch Name", JournalBatchName);
+        IF NOT ISEMPTY THEN
+          DELETEALL(TRUE);
+
+        INIT;
+        "Journal Template Name" := JournalTemplateName;
+        "Journal Batch Name" := JournalBatchName;
+
+        Item.RESET;
+        Item.SETFILTER("Location Filter", LocationCode);
+        IF LotNo <> '' THEN
+          Item.SETFILTER("Lot No. Filter",LotNo);
+        Item.SETRANGE("No.", ItemNo);
+        Item.FINDFIRST;
+
+        CLEAR(CalcWhseAdjmt);
+        CalcWhseAdjmt.SetItemJnlLine(ItemJournalLine);
+        CalcWhseAdjmt.InitializeRequest(WORKDATE, WhseDocumentNo);
+        //CalcWhseAdjmt."#SetPostingDate";
+        CalcWhseAdjmt.SetHideValidationDialog(FALSE);
+        CalcWhseAdjmt.USEREQUESTPAGE(FALSE);
+        CalcWhseAdjmt.SETTABLEVIEW(Item);
+        CalcWhseAdjmt.RUN;
+
+        IF FINDSET THEN
+          REPEAT
+            IF ExpirationDate <> 0D THEN BEGIN
+              ReservationEntry.SETRANGE("Item No.", ItemNo);
+              ReservationEntry.SETRANGE("Location Code", LocationCode);
+              ReservationEntry.SETRANGE("Source ID", "Journal Template Name");
+              ReservationEntry.SETRANGE("Source Batch Name", "Journal Batch Name");
+              ReservationEntry.SETRANGE("Source Ref. No.",ItemJournalLine."Line No.");
+              IF ReservationEntry.FINDSET THEN
+                REPEAT
+                  IF ReservationEntry."Expiration Date" <> 0D THEN BEGIN
+                    ReservationEntry."Expiration Date" := ExpirationDate;
+                    ReservationEntry.MODIFY;
+                  END;
+                UNTIL ReservationEntry.NEXT=0;
+            END;
+            ItemJournalLine."Reason Code" := ReasonCode;
+            ItemJournalLine.MODIFY;
+          UNTIL ItemJournalLine.NEXT=0;
+
+        IF ItemJournalLine.FINDFIRST THEN BEGIN
+          CLEAR(ItemJnlPostBatch);
+          ItemJnlPostBatch.RUN(ItemJournalLine);
+        END;
+      END;
+    END;
+
+    LOCAL PROCEDURE SearchExpirationDate@1000000052(ItemNo@1000000001 : Code[20];VariantCode@1000000003 : Code[10];LotNo@1000000000 : Code[20]) : Date;
+    VAR
+      ItemLedgerEntry@1000000002 : Record 32;
+    BEGIN
+      ItemLedgerEntry.SETRANGE("Item No.",ItemNo);
+      ItemLedgerEntry.SETRANGE("Lot No.", LotNo);
+      ItemLedgerEntry.SETRANGE("Variant Code",VariantCode);
+      ItemLedgerEntry.SETRANGE(Positive,TRUE);
+      IF NOT ItemLedgerEntry.FINDFIRST THEN BEGIN
+        ItemLedgerEntry.SETRANGE(Positive);
+        ItemLedgerEntry.SETFILTER("Expiration Date",'<>%1',0D);
+        IF NOT ItemLedgerEntry.FINDLAST THEN
+          EXIT(0D);
+      END;
+      EXIT(ItemLedgerEntry."Expiration Date");
+    END;
+
+    LOCAL PROCEDURE SendSalesApprovalRequest@1000000010();
+    BEGIN
+      ERROR('funcionalidad aun no creada para 2018');
+    END;
+
+    LOCAL PROCEDURE JournalReclassificationWarehouse@1000000023();
+    VAR
+      WarehouseJournalLine@1000000000 : Record 7311;
+      xBin@1000000002 : Record 7354;
+      xItem@1000000001 : Record 27;
+      error01@1000000004 : TextConst 'ESP=La cantidad no puede ser negativa';
+      WhseJnlRegisterBatch@1000000005 : Codeunit 7304;
+      CreateReservEntry@1000000003 : Codeunit 99000830;
+    BEGIN
+      //funcion para el diario de reclasificacion almacen
+      IF ExpirationDate = 0D THEN
+        ExpirationDate := SearchExpirationDate(ItemNo,VariantCode,LotNo);
+      CLEAR(WhseJnlRegisterBatch);
+      xItem.GET(ItemNo);
+
+      IF Qty < 0 THEN
+        ERROR(error01);
+
+      WITH WarehouseJournalLine DO BEGIN
+        RESET;
+        SETRANGE("Journal Template Name", JournalTemplateName);
+        SETRANGE("Journal Batch Name", JournalBatchName);
+        IF NOT ISEMPTY THEN
+          DELETEALL;
+
+        INIT;
+        "Journal Template Name" := JournalTemplateName;
+        "Journal Batch Name" := JournalBatchName;
+        "Line No." := 10000;
+        "Item No." := xItem."No.";
+        "Unit of Measure Code" := xItem."Base Unit of Measure";
+        "Location Code":= LocationCode;
+
+        "Entry Type" := "Entry Type"::Movement;
+        Quantity :=Qty;
+        "Qty. (Base)" := QtyBase;
+        "Qty. (Absolute)" := ABS(Qty);
+        "Qty. (Absolute, Base)" := ABS(QtyBase);
+
+        "Qty. per Unit of Measure" := 1;
+        "Whse. Document No." := DocNo;
+        "Registering Date" := WORKDATE;
+        "Lot No." := LotNo;
+        "New Lot No." := NewLotNo;
+        "Expiration Date" := ExpirationDate;
+        "New Expiration Date" := NewExpirationDate;
+
+        "Whse. Document No." := DocNo;
+        Description := Desc;
+        "Reason Code" := ReasonCode;
+
+        xBin.GET(LocationCode,BinCode);
+
+        "From Bin Type Code" := xBin."Bin Type Code";
+        "From Zone Code" := xBin."Zone Code";
+        "From Bin Code" := xBin.Code;
+
+        xBin.GET(LocationCode,ToBinCode);
+
+        "To Zone Code" := xBin."Zone Code";
+        "To Bin Code" := xBin.Code;
+
+        //Creamos los seguimientos
+        CreateWhseItemTrackingLine(DATABASE::"Warehouse Journal Line", //Numero tabla
+                                    0, // Tipos documento ejemplo 0 = oferta
+                                      "Journal Batch Name",   // blanco o Journal Batch Name
+                                    "Journal Template Name" ,  //No doc o Journal Template Name
+                                    "Item No.",
+                                    LotNo,
+                                    "Location Code",
+                                    "Qty. (Base)",
+                                    1,
+                                    "Line No.");
+
+        SetDatesWhseItemTrackingLine(0D,ExpirationDate);
+        SetNewValuesWhseItemTrackingLine('',LotNo,ExpirationDate);
+
+        INSERT;
+
+        WhseJnlRegisterBatch.RUN(WarehouseJournalLine);
+      END;
+    END;
+
+    LOCAL PROCEDURE CreateWhseItemTrackingLine@1000000024(SourceType@1000000000 : Integer;SourceSubtype@1000000001 : Integer;SourceID@1000000002 : Code[20];SourceBatchName@1000000003 : Code[10];ItemNo@1000000004 : Code[20];LotNo@1000000005 : Code[20];LocationCode@1000000006 : Code[10];QuantityBase@1000000007 : Decimal;QtyPerUnitOfMeasure@1000000008 : Integer;LineNo@1000000009 : Integer);
+    VAR
+      EntryNo@1000000011 : Integer;
+    BEGIN
+      WITH WhseItemTrackingLine DO BEGIN
+        IF FINDLAST THEN
+          EntryNo := "Entry No.";
+
+        INIT;
+        "Entry No." := EntryNo + 1;
+        "Item No." := ItemNo;
+        "Location Code" := LocationCode;
+        "Source ID" := SourceID;
+        "Source Batch Name" := SourceBatchName;
+        "Source Ref. No." := LineNo;
+        "Source Type" := SourceType;
+        "Source Subtype" := SourceSubtype;
+        "Qty. per Unit of Measure" := QtyPerUnitOfMeasure;
+
+        VALIDATE("Quantity (Base)", QuantityBase);
+        VALIDATE("Lot No.", LotNo);
+        INSERT;
+      END;
+    END;
+
+    LOCAL PROCEDURE SetDatesWhseItemTrackingLine@1000000020(WarrantyDate@1001 : Date;ExpirationDate@1000 : Date);
+    BEGIN
+      WITH WhseItemTrackingLine DO BEGIN
+        "Warranty Date" := WarrantyDate;
+        "Expiration Date" := ExpirationDate;
+        MODIFY;
+      END;
+    END;
+
+    LOCAL PROCEDURE SetNewValuesWhseItemTrackingLine@1000000018(NewSerialNo@1000000000 : Code[20];NewLotNo@1000000001 : Code[20];NewExpirationDate@1000000002 : Date);
+    BEGIN
+      WITH WhseItemTrackingLine DO BEGIN
+        "New Serial No." := NewSerialNo;
+        "New Lot No." := NewLotNo;
+        "New Expiration Date" := NewExpirationDate;
+        MODIFY;
+      END;
+    END;
+
+    LOCAL PROCEDURE Post80@1000000012();
+    BEGIN
+      CODEUNIT.RUN(80,SalesHeader);
+    END;
+
+    LOCAL PROCEDURE ReleaseSalesHeader@1000000025();
+    VAR
+      ReleaseSalesDoc@1000000000 : Codeunit 414;
+    BEGIN
+      ReleaseSalesDoc.PerformManualRelease(SalesHeader);
+    END;
+
+    LOCAL PROCEDURE CreateInvoiceLinesFromShipment@1000000033();
+    VAR
+      SalesGetShpt@1000000000 : Codeunit 64;
+    BEGIN
+      CLEAR(SalesGetShpt);
+      SalesGetShpt.SetSalesHeader(SalesHeader);
+      SalesGetShpt.CreateInvLines(SalesShipmentLine);
+    END;
+
+    LOCAL PROCEDURE CreateCreditMemoLinesFromReturnReceipt@1000000036();
+    VAR
+      SalesGetReturnReceipts@1000000000 : Codeunit 6638;
+    BEGIN
+      CLEAR(SalesGetReturnReceipts);
+      SalesGetReturnReceipts.SetSalesHeader(SalesHeader);
+      SalesGetReturnReceipts.CreateInvLines(ReturnReceiptLine);
+    END;
+
+    PROCEDURE "------------------------SET--------------------------------------------------------"@1000000021();
+    BEGIN
+    END;
+
+    PROCEDURE SetInsertRec@1000000027(l_RecVariant@1000000006 : Variant;l_RecGetView@1000000004 : Text);
+    BEGIN
+      FunctionID := 1;
+      RefRef.GETTABLE(l_RecVariant);
+      RefRef.SETVIEW(l_RecGetView);
+    END;
+
+    PROCEDURE SetModifyRec@1000000028(l_RecVariant@1000000006 : Variant;l_RecGetView@1000000004 : Text);
+    BEGIN
+      FunctionID := 2;
+      RefRef.GETTABLE(l_RecVariant);
+      RefRef.SETVIEW(l_RecGetView);
+    END;
+
+    PROCEDURE SetDeleteRec@1000000030(l_RecVariant@1000000006 : Variant;l_RecGetView@1000000004 : Text);
+    BEGIN
+      FunctionID := 3;
+      RefRef.GETTABLE(l_RecVariant);
+      RefRef.SETVIEW(l_RecGetView);
+    END;
+
+    PROCEDURE SetValidateRec@1000000006(l_RecVariant@1000000006 : Variant;l_FieldNumber@1000000005 : Integer;l_RecGetView@1000000004 : Text;l_Value@1000000000 : Variant);
+    BEGIN
+      FunctionID := 4;
+      RefRef.GETTABLE(l_RecVariant);
+      RefRef.SETVIEW(l_RecGetView);
+      Field_Ref := RefRef.FIELD(l_FieldNumber);
+      Value := l_Value;
+    END;
+
+    PROCEDURE SetCreateWarehouseAdjustmentMovement@1000000015(l_ItemNo@1000000010 : Code[20];l_VariantCode@1000000009 : Code[10];l_LotNo@1000000008 : Code[20];l_LocationCode@1000000007 : Code[20];l_BinCode@1000000006 : Code[20];l_Qty@1000000005 : Decimal;l_QtyBase@1000000004 : Decimal;l_DocNo@1000000003 : Code[20];l_Desc@1000000002 : Text[50];l_ReasonCode@1000000001 : Code[10];l_ExpirationDate@1000000000 : Date);
+    BEGIN
+      FunctionID := 5;
+      ItemNo := l_ItemNo;
+      VariantCode := l_VariantCode;
+      LotNo := l_LotNo;
+      LocationCode := l_LocationCode;
+      BinCode := l_BinCode;
+      Qty := l_Qty;
+      QtyBase := l_QtyBase;
+      DocNo := l_DocNo;
+      Desc := l_Desc;
+      ReasonCode := l_ReasonCode;
+      ExpirationDate := l_ExpirationDate;
+    END;
+
+    PROCEDURE SetCalculateAdjustmentWarehouse@1000000016(l_WhseDocumentNo@1000000008 : Code[20];l_ItemNo@1000000007 : Code[20];l_VariantCode@1000000006 : Code[10];l_LotNo@1000000005 : Code[20];l_LocationCode@1000000004 : Code[20];l_ReasonCode@1000000003 : Code[10];l_JournalTemplateName@1000000002 : Code[20];l_JournalBatchName@1000000001 : Code[20];l_ExpirationDate@1000000000 : Date);
+    BEGIN
+      FunctionID :=6;
+      WhseDocumentNo := l_WhseDocumentNo;
+      ItemNo := l_ItemNo;
+      VariantCode := l_VariantCode;
+      LotNo := l_LotNo;
+      LocationCode := l_LocationCode;
+      ReasonCode := l_ReasonCode;
+      JournalTemplateName := l_JournalTemplateName;
+      JournalBatchName := l_JournalBatchName;
+      ExpirationDate := l_ExpirationDate;
+    END;
+
+    PROCEDURE ReverseCreateWarehouseAdjustmentMovement@1000000002();
+    BEGIN
+      FunctionID := 7;
+      Qty := -Qty;
+      QtyBase := -QtyBase;
+    END;
+
+    PROCEDURE ReverseCalculateAdjustmentWarehouse@1000000008();
+    BEGIN
+      FunctionID := 8;
+    END;
+
+    PROCEDURE SetCreateItemJournal@1000000013(l_JournalTemplateName@1000000004 : Code[20];l_JournalBatchName@1000000003 : Code[20];l_ItemNo@1000000009 : Code[20];l_VariantCode@1000000010 : Code[20];l_LotNo@1000000001 : Code[20];l_DocNo@1000000012 : Code[20];l_Desc@1000000002 : Text;l_Qty@1000000006 : Decimal;l_LocationCode@1000000008 : Code[20];l_BinCode@1000000007 : Code[20];l_ReasonCode@1000000011 : Code[10];l_ExpirationDate@1000000013 : Date;l_NoMovToLiquidate@1000000000 : Integer;l_IsNegativeMov@1000000005 : Boolean);
+    BEGIN
+      FunctionID := 9;
+      ItemNo := l_ItemNo;
+      VariantCode := l_VariantCode;
+      LotNo := l_LotNo;
+      LocationCode := l_LocationCode;
+      BinCode := l_BinCode;
+      Qty := l_Qty;
+      DocNo := l_DocNo;
+      Desc := l_Desc;
+      ReasonCode := l_ReasonCode;
+      JournalTemplateName := l_JournalTemplateName;
+      JournalBatchName := l_JournalBatchName;
+      ExpirationDate := l_ExpirationDate;
+      NoMovToLiquidate := l_NoMovToLiquidate;
+      IsNegativeMov := l_IsNegativeMov;
+    END;
+
+    PROCEDURE ReverseCreateItemJournal@1000000007();
+    BEGIN
+      FunctionID := 10;
+      Qty := -Qty;
+      QtyBase := -QtyBase;
+    END;
+
+    PROCEDURE SetSendSalesApprovalRequest@1000000011(l_SalesHeader@1000000000 : Record 36);
+    BEGIN
+      FunctionID := 11;
+      SalesHeader := l_SalesHeader;
+    END;
+
+    PROCEDURE SetJournalReclassificationWarehouse@1000000029(l_JournalTemplateName@1000000015 : Code[20];l_JournalBatchName@1000000014 : Code[20];l_ItemNo@1000000010 : Code[20];l_VariantCode@1000000009 : Code[10];l_LotNo@1000000008 : Code[20];l_NewLotNo@1000000012 : Code[20];l_LocationCode@1000000007 : Code[20];l_BinCode@1000000006 : Code[20];l_ToBinCode@1000000011 : Code[20];l_Qty@1000000005 : Decimal;l_QtyBase@1000000004 : Decimal;l_DocNo@1000000003 : Code[20];l_Desc@1000000002 : Text[50];l_ReasonCode@1000000001 : Code[10];l_ExpirationDate@1000000000 : Date;l_NewExpirationDate@1000000013 : Date);
+    BEGIN
+      FunctionID := 12;
+      JournalTemplateName := l_JournalTemplateName;
+      JournalBatchName := l_JournalBatchName;
+      ItemNo := l_ItemNo;
+      NewLotNo := l_NewLotNo;
+      VariantCode := l_VariantCode;
+      LotNo := l_LotNo;
+      LocationCode := l_LocationCode;
+      BinCode := l_BinCode;
+      ToBinCode := l_ToBinCode;
+      Qty := l_Qty;
+      QtyBase := l_QtyBase;
+      DocNo := l_DocNo;
+      Desc := l_Desc;
+      ReasonCode := l_ReasonCode;
+      ExpirationDate := l_ExpirationDate;
+      NewExpirationDate := l_NewExpirationDate;
+    END;
+
+    PROCEDURE SetPost80@1000000014(VAR l_SalesHeader@1000000000 : Record 36);
+    BEGIN
+      FunctionID := 13;
+      SalesHeader := l_SalesHeader;
+      SalesHeader.COPYFILTERS(l_SalesHeader);
+    END;
+
+    PROCEDURE SetReleaseSalesHeader@1000000026(VAR l_SalesHeader@1000000000 : Record 36);
+    BEGIN
+      FunctionID := 14;
+      SalesHeader := l_SalesHeader;
+      SalesHeader.COPYFILTERS(l_SalesHeader);
+    END;
+
+    PROCEDURE SetCreateInvoiceLinesFromShipment@1000000032(VAR l_SalesHeader@1000000001 : Record 36;VAR l_SalesShipmentLine@1000000000 : Record 111);
+    BEGIN
+      FunctionID := 15;
+      SalesHeader := l_SalesHeader;
+      SalesShipmentLine := l_SalesShipmentLine;
+      SalesShipmentLine.COPYFILTERS(l_SalesShipmentLine);
+      SalesHeader.COPYFILTERS(l_SalesHeader);
+    END;
+
+    PROCEDURE SetCreateCreditMemoLinesFromReturnReceipt@1000000035(VAR l_SalesHeader@1000000001 : Record 36;VAR l_ReturnReceiptLine@1000000002 : Record 6661);
+    BEGIN
+      FunctionID := 16;
+      SalesHeader := l_SalesHeader;
+      ReturnReceiptLine := l_ReturnReceiptLine;
+      ReturnReceiptLine.COPYFILTERS(l_ReturnReceiptLine);
+      SalesHeader.COPYFILTERS(l_SalesHeader);
+    END;
+
+    PROCEDURE "------------------------GET-------------------------------------------------------------"@1000000022();
+    BEGIN
+    END;
+
+    PROCEDURE GetRec@1000000017(VAR l_RecRef@1000000001 : RecordRef);
+    BEGIN
+      l_RecRef := RefRef;
+    END;
+
+    PROCEDURE GetError@1000000001() : Text;
+    BEGIN
+      IF GETLASTERRORTEXT <> '' THEN
+        EXIT(GETLASTERRORTEXT);
+
+      EXIT('');
+    END;
+
+    PROCEDURE GetError_CALLSTACK@1000000031() : Text;
+    BEGIN
+      IF GETLASTERRORTEXT <> '' THEN
+        EXIT(GETLASTERRORTEXT + SaltoLinea + SaltoLinea + SaltoLinea + GETLASTERRORCALLSTACK);
+
+      EXIT('');
+    END;
+
+    PROCEDURE GetExpirationDate@1000000009(ItemNo@1000000002 : Code[20];VariantCode@1000000001 : Code[10];LotNo@1000000000 : Code[20]) : Date;
+    BEGIN
+      EXIT(SearchExpirationDate(ItemNo,VariantCode, LotNo));
+    END;
+
+    PROCEDURE GetCreateInvoiceLinesFromShipment@1000000034(VAR l_SalesHeader@1000000001 : Record 36;VAR l_SalesShipmentLine@1000000000 : Record 111);
+    BEGIN
+      l_SalesHeader := SalesHeader;
+      l_SalesShipmentLine := SalesShipmentLine;
+
+      l_SalesHeader.COPYFILTERS(SalesHeader);
+      l_SalesShipmentLine.COPYFILTERS(SalesShipmentLine);
+    END;
+
+    PROCEDURE "-------------------------------------------------------------------------------------------"@1000000041();
+    BEGIN
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
+      Item."No." := 'ITEM_PRUEBAS';
+      Item.Description := 'Item de pruebas';
+      Clear(TryCatchAvanzado);
+      TryCatchAvanzado.SetInsertRec(Item,Item.GETVIEW);
+
+      IF NOT TryCatchAvanzado.RUN THEN
+        message(TryCatchAvanzado.GetError);
+    
+    }
+    END.
+  }
+}
+

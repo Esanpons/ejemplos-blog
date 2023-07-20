@@ -1,0 +1,271 @@
+OBJECT Codeunit 58000 Mgt. Json
+{
+  OBJECT-PROPERTIES
+  {
+    Date=20/12/22;
+    Time=11:47:22;
+    Modified=Yes;
+    Version List=UTILS;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+
+    LOCAL PROCEDURE "**********************IMPORT********************************"@1000000004();
+    BEGIN
+    END;
+
+    PROCEDURE UploadJson2Rec@1000000011(RecVariant@1000000000 : Variant);
+    VAR
+      RecordRefe@1000000001 : RecordRef;
+      FileName@1000000002 : Text;
+      DocInStream@1000000003 : InStream;
+      TempBlob@1000000004 : TEMPORARY Record 99008535;
+      FileManagement@1000000005 : Codeunit 419;
+      JsonText@1000000006 : Text;
+    BEGIN
+      CLEAR(TempBlob);
+      TempBlob.INIT;
+      TempBlob.Blob.CREATEINSTREAM(DocInStream);
+      FileName := FileManagement.BLOBImport(TempBlob,'');
+
+      DocInStream.READ(JsonText);
+
+      CLEAR(RecordRefe);
+      RecordRefe.GETTABLE(RecVariant);
+
+      Json2Rec(JsonText,RecordRefe.NUMBER);
+    END;
+
+    PROCEDURE Json2Rec@1000000008(JsonText@1000000002 : Text;TableNo@1000000008 : Integer);
+    VAR
+      i@1000000000 : Integer;
+      FieldRefe@1000000005 : FieldRef;
+      TagText@1000000003 : Text;
+      ValueText@1000000004 : Text;
+      ReadJson@1000000007 : DotNet "'MgtJson, Version=1.0.0.1, Culture=neutral, PublicKeyToken=1036d3165c08df63'.MgtJson.Class.ReadJson";
+      RecordRefe@1000000001 : RecordRef;
+    BEGIN
+      CLEAR(RecordRefe);
+      RecordRefe.OPEN(TableNo);
+
+      CLEAR(ReadJson);
+      ReadJson := ReadJson.ReadJson(JsonText);
+
+      RecordRefe.INIT();
+      CLEAR(FieldRefe);
+
+      FOR i := 1 TO RecordRefe.FIELDCOUNT() DO BEGIN
+        FieldRefe := RecordRefe.FIELDINDEX(i);
+         IF FORMAT(FieldRefe.CLASS) = 'Normal' THEN BEGIN
+          TagText := GetJsonFieldName(FieldRefe.NAME);
+           IF ReadJson.ExistsTag(TagText) THEN BEGIN
+             ValueText := ReadJson.GetValueJson_FromTag(TagText);
+             AssignValueToFieldRef(FieldRefe, TagText, ValueText);
+           END;
+         END;
+      END;
+
+      RecordRefe.INSERT();
+    END;
+
+    LOCAL PROCEDURE AssignValueToFieldRef@1000000009(VAR FieldRefe@1000000019 : FieldRef;VAR TagText@1000000020 : Text;VAR ReturnValueText@1000000017 : Text);
+    VAR
+      ValueOption@1000000013 : Integer;
+      ValueBoolean@1000000001 : Boolean;
+      ValueDecimal@1000000003 : Decimal;
+      ValueInteger@1000000002 : Integer;
+      ValueDateTime@1000000009 : DateTime;
+      ValueTime@1000000000 : Time;
+      ValueText@1000000011 : Text;
+      ValueDate@1000000008 : Date;
+      Day@1000000006 : Integer;
+      Month@1000000005 : Integer;
+      Year@1000000004 : Integer;
+      TypeText@1000000015 : Text;
+    BEGIN
+      TypeText := FORMAT(FieldRefe.TYPE);
+      CASE TypeText OF
+        'Option':
+          BEGIN
+            EVALUATE(ValueOption, ReturnValueText);
+            FieldRefe.VALUE := ValueOption;
+          END;
+        'Boolean':
+          BEGIN
+            EVALUATE(ValueBoolean, ReturnValueText);
+            FieldRefe.VALUE(ValueBoolean);
+          END;
+        'Date':
+          BEGIN
+            EVALUATE(Day, COPYSTR(ReturnValueText,1,2));
+            EVALUATE(Month, COPYSTR(ReturnValueText,4,2));
+            EVALUATE(Year, COPYSTR(ReturnValueText,7,4));
+
+            IF STRLEN(FORMAT(Year)) =2 THEN
+               Year := 2000 + Year;
+
+            ValueDate := DMY2DATE(Day, Month, Year);
+            FieldRefe.VALUE(ValueDate);
+          END;
+        'DateTime':
+          BEGIN
+            EVALUATE(Day, COPYSTR(ReturnValueText,1,2));
+            EVALUATE(Month, COPYSTR(ReturnValueText,4,2));
+            EVALUATE(Year, COPYSTR(ReturnValueText,7,2));
+            EVALUATE(ValueTime, COPYSTR(ReturnValueText,10,5));
+
+            IF STRLEN(FORMAT(Year)) =2 THEN
+               Year := 2000 + Year;
+
+            ValueDateTime := CREATEDATETIME(DMY2DATE(Day, Month, Year), ValueTime);
+
+            ValueText := FORMAT(ValueDateTime);
+            ValueText := DELSTR(ValueText,7,2);
+            EVALUATE(ValueDateTime, ValueText);
+            FieldRefe.VALUE(ValueDateTime);
+          END;
+        'Time':
+          BEGIN
+            EVALUATE(ValueTime, COPYSTR(ReturnValueText,1,8));
+             FieldRefe.VALUE(ValueTime);
+          END;
+        'Decimal':
+          BEGIN
+            EVALUATE(ValueDecimal,ReturnValueText);
+             FieldRefe.VALUE(ValueDecimal);
+          END;
+        'Integer':
+          BEGIN
+            EVALUATE(ValueInteger,ReturnValueText);
+            FieldRefe.VALUE(ValueInteger);
+          END;
+        'BLOB': EXIT;
+        ELSE
+            FieldRefe.VALUE := ReturnValueText;
+      END;
+    END;
+
+    LOCAL PROCEDURE "**********************EXPORT********************************"@1000000003();
+    BEGIN
+    END;
+
+    PROCEDURE Rec2Json@1000000123(RecVariant@1000000005 : Variant);
+    VAR
+      FieldRefe@1000000001 : FieldRef;
+      i@1000000003 : Integer;
+      ValueVariant@1000000004 : Variant;
+      TagText@1000000002 : Text;
+      ValueText@1000000006 : Text;
+      CreateJson@1000000008 : DotNet "'MgtJson, Version=1.0.0.1, Culture=neutral, PublicKeyToken=1036d3165c08df63'.MgtJson.Class.CreateJson";
+      RecordRefe@1000000000 : RecordRef;
+      TempBlob@1000000007 : TEMPORARY Record 99008535;
+      JsonText@1000000009 : Text;
+      DocOutStream@1000000010 : OutStream;
+      FileManagement@1000000011 : Codeunit 419;
+      FileName@1000000012 : Text;
+    BEGIN
+      CLEAR(RecordRefe);
+      RecordRefe.GETTABLE(RecVariant);
+
+      CreateJson := CreateJson.CreateJson();
+      CreateJson.InitJson();
+
+      FOR i := 1 TO RecordRefe.FIELDCOUNT() DO BEGIN
+        FieldRefe := RecordRefe.FIELDINDEX(i);
+        TagText := GetJsonFieldName(FieldRefe.NAME);
+        IF FORMAT(FieldRefe.CLASS) = 'FlowField' THEN
+          FieldRefe.CALCFIELD();
+
+        ValueVariant :=FieldRefe.VALUE;
+        ValueText := FORMAT(ValueVariant);
+
+        FieldRef2JsonValue(FieldRefe,ValueText);
+
+        CreateJson.AddLine(TagText, ValueText);
+      END;
+
+      CreateJson.EndJson();
+
+      JsonText := CreateJson.ReturnJSon();
+      FileName := RecordRefe.NAME + '.json';
+
+      CLEAR(TempBlob);
+      CLEAR(DocOutStream);
+      CLEAR(FileManagement);
+
+      TempBlob.INIT;
+      TempBlob.Blob.CREATEOUTSTREAM(DocOutStream);
+      DocOutStream.WRITE(JsonText);
+      TempBlob.INSERT;
+      TempBlob.CALCFIELDS(Blob);
+      FileManagement.BLOBExport(TempBlob,FileName,TRUE);
+    END;
+
+    LOCAL PROCEDURE FieldRef2JsonValue@1000000000(VAR FieldRefe@1000000002 : FieldRef;VAR ValueText@1000000000 : Text);
+    VAR
+      TypeOption@1000000003 : Integer;
+      ValueBoo@1000000004 : Boolean;
+    BEGIN
+      CASE FORMAT(FieldRefe.TYPE()) OF
+        'Option':
+          BEGIN
+            TypeOption := FieldRefe.VALUE;
+            ValueText := FORMAT(TypeOption);
+          END;
+        'Boolean':
+          BEGIN
+            ValueBoo := FieldRefe.VALUE;
+            IF ValueBoo THEN
+              ValueText := 'TRUE'
+            ELSE
+              ValueText := 'FALSE';
+          END;
+      END;
+    END;
+
+    LOCAL PROCEDURE "***********************VARIOS********************************"@1000000002();
+    BEGIN
+    END;
+
+    LOCAL PROCEDURE GetJsonFieldName@1000000054(Name@1000000000 : Text) : Text;
+    VAR
+      i@1000000001 : Integer;
+      Pos@1000000002 : Integer;
+      OldString@1000000003 : Text;
+      NewString@1000000004 : Text;
+    BEGIN
+      FOR i := 1 TO STRLEN(Name) DO
+        IF Name[i] < '0' THEN
+            Name[i] := '_';
+
+      OldString := '__';
+      NewString := '_';
+
+      Pos := STRPOS(Name, OldString);
+
+      WHILE Pos <> 0 DO BEGIN
+        Name := DELSTR(Name, Pos, STRLEN(OldString));
+        Name := INSSTR(Name, NewString, Pos);
+        Pos := STRPOS(Name, OldString);
+      END;
+
+      EXIT(Name);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+      #En este caso solo se ha creado el boton DeleteSesion el resto de codigo es estandar de Navision
+    }
+    END.
+  }
+}
+

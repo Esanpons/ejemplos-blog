@@ -1,0 +1,52 @@
+OBJECT Codeunit 50001 TryCatchBasico
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/11/21;
+    Time=17:55:57;
+    Modified=Yes;
+    Version List=UTILS;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            CLEARLASTERROR;
+
+            IF QueremosError THEN
+              ERROR('Aqui tenemos nuestro error')
+            ELSE
+              MESSAGE('hemos completado la accion correctamente');
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      QueremosError@1000000000 : Boolean;
+
+    PROCEDURE SetQueremosError@1000000001(NewQueremosError@1000000000 : Boolean);
+    BEGIN
+      QueremosError := NewQueremosError;
+    END;
+
+    PROCEDURE GetError@1000000004() : Text;
+    BEGIN
+      EXIT(GETLASTERRORTEXT);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+      
+      
+      Clear(TryCatchBasico);
+      TryCatchBasico.SetQueremosError(true);
+      if TryCatchBasico.Run() then
+        Message('hay el error ' + TryCatchBasico.GetError());
+    }
+    END.
+  }
+}
+

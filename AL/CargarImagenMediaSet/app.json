@@ -1,0 +1,37 @@
+{
+  "id": "17273c47-0a24-44fe-9c6c-98ba1aeba913",
+  "publisher": "Esteve Sanpons",
+  "name": "Cargar Imagen en MediaSet",
+  "brief": "Cargar Imagen en MediaSet",
+  "description": "Cargar Imagen en MediaSet",
+  "privacyStatement": "https://www.aesva.es/",
+  "EULA": "https://www.aesva.es/",
+  "help": "https://www.aesva.es/",
+  "url": "https://www.aesva.es/",
+  "contextSensitiveHelpUrl": "https://www.aesva.es/",
+  "dependencies": [],
+  "screenshots": [],
+  "resourceExposurePolicy": {
+    "includeSourceInSymbolFile": false,
+    "allowDebugging": true,
+    "allowDownloadingSource": false
+  },
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "NoImplicitWith",
+    "TranslationFile"
+  ],
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],
+  "version": "1.0.0.0",
+  "application": "22.0.0.0",
+  "platform": "1.0.0.0",
+  "runtime": "11.0"
+}

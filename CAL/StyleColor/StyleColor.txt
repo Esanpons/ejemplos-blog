@@ -1,0 +1,67 @@
+OBJECT [Page 50000 Testing Item List ]
+{
+  OBJECT-PROPERTIES
+  {
+    Date=23/02/22;
+    Time=10:27:13;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table27;
+    PageType=List;
+    OnAfterGetRecord=BEGIN
+                       StyleExpresion := '';
+
+                       IF Inventory < 10 THEN
+                         StyleExpresion := TxtAttentionAccent;
+
+                       IF Blocked THEN
+                         StyleExpresion := TxtAttention;
+                     END;
+
+  }
+  CONTROLS
+  {
+    { 1000000000;0;Container;
+                ContainerType=ContentArea }
+
+    { 1000000001;1;Group  ;
+                Name=Group;
+                GroupType=Repeater }
+
+    { 1000000002;2;Field  ;
+                SourceExpr="No.";
+                StyleExpr=StyleExpresion }
+
+    { 1000000003;2;Field  ;
+                SourceExpr=Description;
+                StyleExpr=StyleExpresion }
+
+    { 1000000004;2;Field  ;
+                SourceExpr=Blocked;
+                StyleExpr=StyleExpresion }
+
+    { 1000000005;2;Field  ;
+                SourceExpr=Inventory;
+                StyleExpr=StyleExpresion }
+
+  }
+  CODE
+  {
+    VAR
+      StyleExpresion@1000000000 : Text;
+      TxtAttention@1000000001 : TextConst 'ENU=Attention;ESP=Attention';
+      TxtAttentionAccent@1000000002 : TextConst 'ENU=AttentionAccent;ESP=AttentionAccent';
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

@@ -1,0 +1,155 @@
+OBJECT Codeunit 50101 Varios Utils
+{
+  OBJECT-PROPERTIES
+  {
+    Date=14/08/22;
+    Time=19:22:34;
+    Modified=Yes;
+    Version List=UTILS;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+
+    PROCEDURE SaltoDeLinea@1000000011() ReturnValue : Text;
+    VAR
+      Char13@1000000000 : Char;
+      Char10@1000000001 : Char;
+    BEGIN
+      Char13 := 13;
+      Char10 := 10;
+      ReturnValue :=FORMAT(Char13) + FORMAT(Char10);
+    END;
+
+    PROCEDURE EliminarLetrasTexto@1000000001(txt@1000000000 : Text) : Text;
+    BEGIN
+      txt := DELCHR(txt,'=','A');
+      txt := DELCHR(txt,'=','B');
+      txt := DELCHR(txt,'=','C');
+      txt := DELCHR(txt,'=','D');
+      txt := DELCHR(txt,'=','E');
+      txt := DELCHR(txt,'=','F');
+      txt := DELCHR(txt,'=','G');
+      txt := DELCHR(txt,'=','H');
+      txt := DELCHR(txt,'=','I');
+      txt := DELCHR(txt,'=','J');
+      txt := DELCHR(txt,'=','K');
+      txt := DELCHR(txt,'=','L');
+      txt := DELCHR(txt,'=','M');
+      txt := DELCHR(txt,'=','N');
+      txt := DELCHR(txt,'=','O');
+      txt := DELCHR(txt,'=','P');
+      txt := DELCHR(txt,'=','Q');
+      txt := DELCHR(txt,'=','R');
+      txt := DELCHR(txt,'=','S');
+      txt := DELCHR(txt,'=','T');
+      txt := DELCHR(txt,'=','U');
+      txt := DELCHR(txt,'=','V');
+      txt := DELCHR(txt,'=','W');
+      txt := DELCHR(txt,'=','X');
+      txt := DELCHR(txt,'=','Y');
+      txt := DELCHR(txt,'=','Z');
+      txt := DELCHR(txt,'=','�');
+      txt := DELCHR(txt,'=','�');
+      txt := DELCHR(txt,'=','a');
+      txt := DELCHR(txt,'=','b');
+      txt := DELCHR(txt,'=','c');
+      txt := DELCHR(txt,'=','d');
+      txt := DELCHR(txt,'=','e');
+      txt := DELCHR(txt,'=','f');
+      txt := DELCHR(txt,'=','g');
+      txt := DELCHR(txt,'=','h');
+      txt := DELCHR(txt,'=','i');
+      txt := DELCHR(txt,'=','j');
+      txt := DELCHR(txt,'=','k');
+      txt := DELCHR(txt,'=','l');
+      txt := DELCHR(txt,'=','m');
+      txt := DELCHR(txt,'=','n');
+      txt := DELCHR(txt,'=','o');
+      txt := DELCHR(txt,'=','p');
+      txt := DELCHR(txt,'=','q');
+      txt := DELCHR(txt,'=','r');
+      txt := DELCHR(txt,'=','s');
+      txt := DELCHR(txt,'=','t');
+      txt := DELCHR(txt,'=','u');
+      txt := DELCHR(txt,'=','v');
+      txt := DELCHR(txt,'=','w');
+      txt := DELCHR(txt,'=','x');
+      txt := DELCHR(txt,'=','y');
+      txt := DELCHR(txt,'=','z');
+      txt := DELCHR(txt,'=','�');
+      txt := DELCHR(txt,'=','�');
+      EXIT(txt);
+    END;
+
+    PROCEDURE EliminarGuion@1000000007(txt@1000000000 : Text) : Text;
+    BEGIN
+      txt := DELCHR(txt,'=','-');
+      EXIT(txt);
+    END;
+
+    PROCEDURE DeleteSaltoDeLinea@1000000015(Value@1000000000 : Text) : Text;
+    VAR
+      Char13@1000000003 : Char;
+      Char10@1000000002 : Char;
+      SaltoLinea@1000000001 : Text;
+      txt@1000000004 : Text;
+    BEGIN
+      Char13 := 13;
+      Char10 := 10;
+      SaltoLinea:=FORMAT(Char13) + FORMAT(Char10);
+
+      txt := CONVERTSTR(Value,SaltoLinea,'  ');
+
+      EXIT(txt);
+    END;
+
+    PROCEDURE CreateDirectory@1000000012(Path@1000000000 : Text) : Boolean;
+    VAR
+      Directory@1000000001 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.IO.Directory";
+    BEGIN
+      CLEAR(Directory);
+      IF Directory.Exists(Path) THEN
+        EXIT(FALSE);
+
+      Directory.CreateDirectory(Path);
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE DiferenciaEntreTimes@1000000014(Time1@1000000000 : Time;Time2@1000000001 : Time) ReturnTime : Time;
+    VAR
+      Diferencia@1000000002 : Decimal;
+    BEGIN
+      Diferencia := Time2 - Time1;
+      ReturnTime := 000000T;
+
+      Diferencia := Diferencia / 1000; // lo convierto a segundos
+      ReturnTime := ReturnTime +(Diferencia MOD 60) *1000; // get the seconds
+      Diferencia := Diferencia DIV 60; // keep the minutes
+      ReturnTime := ReturnTime + (Diferencia MOD 60) * 1000 * 60; // get the minutes
+      Diferencia := Diferencia DIV 60; // keep the hours
+      ReturnTime := ReturnTime + (Diferencia MOD 60) * 1000 * 60 * 60; // get the hours
+    END;
+
+    PROCEDURE EliminarBarraYGuion@1000000017(txt@1000000000 : Text) : Text;
+    BEGIN
+      txt := DELCHR(txt,'=','-');
+      txt := DELCHR(txt,'=','/');
+      EXIT(txt);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

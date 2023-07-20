@@ -1,0 +1,56 @@
+OBJECT Codeunit 62000 RestarDosTime
+{
+  OBJECT-PROPERTIES
+  {
+    Date=26/01/22;
+    Time=[ 8:16:18];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            Restar();
+          END;
+
+  }
+  CODE
+  {
+
+    LOCAL PROCEDURE Restar@1000000001();
+    VAR
+      t1@1000000000 : Time;
+      t2@1000000001 : Time;
+      t3@1000000002 : Time;
+      i@1000000003 : Decimal;
+    BEGIN
+      t1 := 115000T;
+      t2 := 125100T;
+      i := t2-t1;
+      t3 := 000000T;
+
+      // lo convierto a segundos
+      i := i / 1000;
+      t3:= t3 +(i MOD 60) *1000;
+
+      // lo convierto a minutos
+      i := i DIV 60;
+      t3 := t3 + (i MOD 60) * 1000 * 60;
+
+      // lo convierto a horas
+      i := i DIV 60;
+      t3 := t3 + (i MOD 60) * 1000 * 60 * 60;
+
+      MESSAGE(FORMAT(t3));
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

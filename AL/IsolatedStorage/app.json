@@ -1,0 +1,29 @@
+{
+  "id": "20293ef4-269f-4b1a-a884-e7e7a8522811",
+  "name": "Isolated Storage",
+  "publisher": "Esteve Sanpons",
+  "version": "1.0.0.0",
+  "brief": "Isolated Storage",
+  "description": "Isolated Storage",
+  "privacyStatement": "https://github.com/Esanpons",
+  "EULA": "https://github.com/Esanpons",
+  "help": "https://github.com/Esanpons",
+  "url": "https://github.com/Esanpons",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "21.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "10.0"
+}

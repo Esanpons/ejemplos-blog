@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="es-ES" original="FuncionesString">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 534488655 - Method 3011596639 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_ConvertStr - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 3011596639 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_ConvertStr - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 1934318097 - NamedType 3209546969" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial text was: "%1" and new text is: "%2"</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto Inicial era: "%1" y el nuevo texto es: "%2""</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_CopyStr - NamedType MyMsgLbl</note>
+          <target>El texto Inicial era: "%1" y el nuevo texto es: "%2"</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 540783493 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: "%1".\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: "%1".\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_DelChr - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: "%1".\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 540783493 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_DelChr - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2774797577 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_DelStr - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2774797577 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_DelStr - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2626115466 - NamedType 3672443058" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are 99 Bottles.</source>
+          <note from="Developer" annotates="general" priority="2">ESP="Hay 99 Botellas."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_IncStr - NamedType MyLbl</note>
+          <target>Hay 99 Botellas.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2626115466 - NamedType 3209546969" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial text was: "%1" and new text is: "%2"</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto Inicial era: "%1" y el nuevo texto es: "%2""</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_IncStr - NamedType MyMsgLbl</note>
+          <target>El texto Inicial era: "%1" y el nuevo texto es: "%2"</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 725098682 - NamedType 3672443058" size-unit="char" translate="yes" xml:space="preserve">
+          <source>s</source>
+          <note from="Developer" annotates="general" priority="2">ESP="es"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_InsStr - NamedType MyLbl</note>
+          <target>es</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 725098682 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_InsStr - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 725098682 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_InsStr - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 3469985628 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_LowerCase - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 3469985628 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_LowerCase - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 3651685371 - NamedType 3209546969" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The text "%1", has %2 maximum capacity.</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto "%1", tiene %2 capacidad maxima."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_MaxStrLen - NamedType MyMsgLbl</note>
+          <target>El texto "%1", tiene %2 capacidad maxima.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 1361178145 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: "%1".\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: "%1".\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_PadStr - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: "%1".\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 1361178145 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The result of the first example is: "%2".\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El resultado del primer ejemplo es: "%2".\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_PadStr - NamedType MyMsg2Lbl</note>
+          <target>El resultado del primer ejemplo es: "%2".\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 1361178145 - NamedType 3408044424" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The result of the second example is: "%3".</source>
+          <note from="Developer" annotates="general" priority="2">ESP=" El resultado del segundo ejemplo es: "%3"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_PadStr - NamedType MyMsg3Lbl</note>
+          <target> El resultado del segundo ejemplo es: "%3".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 1440882710 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_SelectStr - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 1440882710 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_SelectStr - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2299024153 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original number is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El número original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_StrCheckSum - NamedType MyMsg1Lbl</note>
+          <target>El número original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2299024153 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The result of the checksum is: %2.</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El resultado de la verificación de suma es: %2."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_StrCheckSum - NamedType MyMsg2Lbl</note>
+          <target>El resultado de la verificación de suma es: %2.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 426565311 - NamedType 3209546969" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The text "%1", has %2 characters.</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto "%1", tiene %2 caracteres."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_StrLen - NamedType MyMsgLbl</note>
+          <target>El texto "%1", tiene %2 caracteres.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 947780162 - NamedType 3209546969" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The text "%1" starts at position %2, from client name: %3</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto "%1" empieza en la posición %2, del nombre de cliente: %3"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_StrPos - NamedType MyMsgLbl</note>
+          <target>El texto "%1" empieza en la posición %2, del nombre de cliente: %3</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2432610756 - NamedType 3672443058" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer number %1 has name %2</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El número de cliente %1 tiene el nombre %2"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_StrSubstNo - NamedType MyLbl</note>
+          <target>El número de cliente %1 tiene el nombre %2</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2540569835 - NamedType 3703520778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The original text is: %1.\</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El texto original es: %1.\"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_UpperCase - NamedType MyMsg1Lbl</note>
+          <target>El texto original es: %1.\</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 534488655 - Method 2540569835 - NamedType 349594151" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new text is: "%2".</source>
+          <note from="Developer" annotates="general" priority="2">ESP="El nuevo texto es: "%2"."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MGS FunctionsString - Method Example_UpperCase - NamedType MyMsg2Lbl</note>
+          <target>El nuevo texto es: "%2".</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

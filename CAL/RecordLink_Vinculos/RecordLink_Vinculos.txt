@@ -1,0 +1,126 @@
+OBJECT Codeunit 50006 RecordLink_Vinculos
+{
+  OBJECT-PROPERTIES
+  {
+    Date=21/04/22;
+    Time=20:58:15;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            Item.GET('1000');
+            ItemCopy.GET('1001');
+
+            InsertarVinculo(Item,'Vinculo Git','https://github.com/Esanpons');
+
+            MESSAGE(ExtraerPrimerVinculo(Item));
+
+            AddLinks(Item,'https://github.com/Esanpons/EjemplosSencillosCAL/tree/main/RecordLink_Vinculos','2§ Vinculo Git');
+
+            IF NOT HayVinculos(ItemCopy) THEN
+              CopyLinks(Item,ItemCopy);
+
+            EliminarPrimerVinculo(Item);
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      RecRef@1000000000 : RecordRef;
+      RecordLink@1000000001 : Record 2000000068;
+      Item@1000000002 : Record 27;
+      ItemCopy@1000000003 : Record 27;
+
+    LOCAL PROCEDURE InsertarVinculo@1000000002(RecVariant@1000000000 : Variant;Description@1000000001 : Text[250];Path@1000000002 : Text[250]);
+    BEGIN
+      //primero a¤adimos la tabla a un RecReference
+      CLEAR(RecRef);
+      RecRef.GETTABLE(RecVariant);
+
+      //Insertamos en la tabla Record Link
+      RecordLink.INIT();
+      RecordLink."Record ID":=RecRef.RECORDID;
+      RecordLink.URL1:=Path;
+      RecordLink.Description:=Description;
+      RecordLink.Company:=COMPANYNAME;
+      RecordLink."To User ID":=USERID;
+      RecordLink.Type:=RecordLink.Type::Link;
+      RecordLink.INSERT();
+    END;
+
+    LOCAL PROCEDURE ExtraerPrimerVinculo@1000000009(RecVariant@1000000000 : Variant) : Text;
+    BEGIN
+      //primero a¤adimos la tabla a un RecReference
+      CLEAR(RecRef);
+      RecRef.GETTABLE(RecVariant);
+
+      //buscamos los vinculos que hay para ese record en concreto
+      RecordLink.RESET();
+      RecordLink.SETFILTER("Record ID", FORMAT(RecRef.RECORDID));
+      IF RecordLink.FINDFIRST() THEN
+        EXIT(RecordLink.URL1);
+
+      EXIT('');
+    END;
+
+    LOCAL PROCEDURE EliminarPrimerVinculo@1000000048(RecVariant@1000000000 : Variant);
+    BEGIN
+      //primero a¤adimos la tabla a un RecReference
+      CLEAR(RecRef);
+      RecRef.GETTABLE(RecVariant);
+
+      //buscamos los vinculos que hay para ese record en concreto
+      RecordLink.RESET();
+      RecordLink.SETFILTER("Record ID", FORMAT(RecRef.RECORDID));
+      IF RecordLink.FINDFIRST() THEN
+        RecordLink.DELETE();
+    END;
+
+    LOCAL PROCEDURE HayVinculos@1000000007(RecVariant@1000000000 : Variant) : Boolean;
+    BEGIN
+      //primero a¤adimos la tabla a un RecReference
+      CLEAR(RecRef);
+      RecRef.GETTABLE(RecVariant);
+
+      EXIT(RecRef.HASLINKS);
+    END;
+
+    LOCAL PROCEDURE AddLinks@1000000034(RecVariant@1000000000 : Variant;URL@1000000001 : Text;Description@1000000002 : Text);
+    BEGIN
+      //primero a¤adimos la tabla a un RecReference
+      CLEAR(RecRef);
+      RecRef.GETTABLE(RecVariant);
+
+      //a¤adimos el link al record seleccionado
+      RecRef.ADDLINK(URL,Description);
+    END;
+
+    LOCAL PROCEDURE CopyLinks@1000000035(RecVariantOrigin@1000000000 : Variant;RecVariantCopy@1000000002 : Variant);
+    VAR
+      RecRefCopy@1000000001 : RecordRef;
+    BEGIN
+      //primero a¤adimos la tabla a un RecReference de origen
+      CLEAR(RecRef);
+      RecRef.GETTABLE(RecVariantOrigin);
+
+      //ahora a¤adimos el RecReference de destino
+      CLEAR(RecRefCopy);
+      RecRefCopy.GETTABLE(RecVariantCopy);
+
+      //por ultimo copiamos los vinculos
+      RecRefCopy.COPYLINKS(RecRef);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

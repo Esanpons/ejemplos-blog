@@ -1,0 +1,54 @@
+OBJECT Table 50000 Custom Customer Ledger Entry
+{
+  OBJECT-PROPERTIES
+  {
+    Date=28/02/23;
+    Time=[ 9:41:37];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    CaptionML=[ENU=Custom Customer Ledger Entry;
+               ESP=Mov de cliente personalizado];
+  }
+  FIELDS
+  {
+    { 1   ;   ;Entry No.           ;Integer       ;CaptionML=[ENU=Entry No.;
+                                                              ESP=N§ mov.] }
+    { 2   ;   ;Customer No.        ;Code20        ;TableRelation=Customer.No.;
+                                                   OnValidate=BEGIN
+                                                                Customer.GET("Customer No.");
+                                                                "Customer Name" := Customer.Name;
+                                                              END;
+
+                                                   CaptionML=[ENU=Customer No.;
+                                                              ESP=N§ cliente] }
+    { 3   ;   ;Customer Name       ;Code20        ;TableRelation=Customer.Name WHERE (No.=FIELD(Customer No.));
+                                                   ValidateTableRelation=No;
+                                                   CaptionML=[ENU=Customer Name;
+                                                              ESP=Nombre cliente] }
+    { 4   ;   ;Is blocked          ;Boolean       ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup(Customer.Blocked WHERE (No.=FIELD(Customer No.)));
+                                                   CaptionML=[ENU=Is blocked;
+                                                              ESP=Esta bloqueado] }
+    { 5   ;   ;Comment             ;Text250       ;CaptionML=[ENU=Comment;
+                                                              ESP=Comentarios] }
+  }
+  KEYS
+  {
+    {    ;Entry No.                               ;Clustered=Yes }
+  }
+  FIELDGROUPS
+  {
+  }
+  CODE
+  {
+    VAR
+      Customer@1000000000 : Record 18;
+
+    BEGIN
+    END.
+  }
+}
+

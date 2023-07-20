@@ -1,0 +1,64 @@
+OBJECT Page 50000 Custom Customer Ledger Entry
+{
+  OBJECT-PROPERTIES
+  {
+    Date=28/02/23;
+    Time=[ 9:42:01];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table50000;
+    PageType=List;
+    OnNewRecord=BEGIN
+                  "Entry No." :=  NewLine();
+                END;
+
+  }
+  CONTROLS
+  {
+    { 1000000000;0;Container;
+                ContainerType=ContentArea }
+
+    { 1000000001;1;Group  ;
+                Name=Group;
+                GroupType=Repeater }
+
+    { 1000000002;2;Field  ;
+                SourceExpr="Entry No.";
+                Editable=false }
+
+    { 1000000003;2;Field  ;
+                SourceExpr="Customer No." }
+
+    { 1000000004;2;Field  ;
+                SourceExpr="Customer Name";
+                Editable=false }
+
+    { 1000000005;2;Field  ;
+                SourceExpr="Is blocked";
+                Visible=false }
+
+    { 1000000006;2;Field  ;
+                SourceExpr=Comment }
+
+  }
+  CODE
+  {
+
+    LOCAL PROCEDURE NewLine@1000000000() ReturnValue : Integer;
+    VAR
+      CustomCustomerLedgerEntry@1000000000 : Record 50000;
+    BEGIN
+      ReturnValue := 1;
+      CustomCustomerLedgerEntry.RESET;
+      IF CustomCustomerLedgerEntry.FINDLAST THEN
+        ReturnValue := CustomCustomerLedgerEntry."Entry No." + 1;
+    END;
+
+    BEGIN
+    END.
+  }
+}
+

@@ -1,0 +1,44 @@
+OBJECT Codeunit 50002 DeterminarSiEstasEnBBDDReal
+{
+  OBJECT-PROPERTIES
+  {
+    Date=26/01/22;
+    Time=[ 8:45:11];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+
+    PROCEDURE IsBBDDReal@1000000002(BBDDReal@1000000002 : Text) : Boolean;
+    VAR
+      Session@1000000000 : Record 2000000009;
+    BEGIN
+      //buscamos la sesion del usuario actual
+      Session.RESET;
+      Session.SETRANGE("User ID", USERID);
+      Session.FINDFIRST;
+
+      //validamos la BBDD de la sesion actual.
+      IF Session."Database Name" = BBDDReal THEN
+        EXIT(TRUE);
+
+      EXIT(FALSE);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

@@ -1,0 +1,295 @@
+OBJECT Page 9506 Session List
+{
+  OBJECT-PROPERTIES
+  {
+    Date=16/02/22;
+    Time=11:53:54;
+    Modified=Yes;
+    Version List=NAVW111.00.00.23572;
+  }
+  PROPERTIES
+  {
+    CaptionML=[ENU=Session List;
+               ESP=Lista de sesiones];
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    ModifyAllowed=No;
+    LinksAllowed=No;
+    SourceTable=Table2000000110;
+    PageType=List;
+    RefreshOnActivate=Yes;
+    PromotedActionCategoriesML=[ENU=New,Process,Report,Session,SQL Trace,Events;
+                                ESP=Nuevo,Procesar,Informe,Sesi¢n,Seguimiento SQL,Eventos];
+    OnOpenPage=BEGIN
+                 FILTERGROUP(2);
+                 SETFILTER("Server Instance ID",'=%1',SERVICEINSTANCEID);
+                 SETFILTER("Session ID",'<>%1',SESSIONID);
+                 FILTERGROUP(0);
+
+                 FullSQLTracingStarted := DEBUGGER.ENABLESQLTRACE(0);
+               END;
+
+    OnFindRecord=BEGIN
+                   CanDebugNextSession := NOT DEBUGGER.ISACTIVE;
+                   CanDebugSelectedSession := NOT DEBUGGER.ISATTACHED AND NOT ISEMPTY;
+
+                   // If the session list is empty, insert an empty row to carry the button state to the client
+                   IF NOT FIND(Which) THEN BEGIN
+                     INIT;
+                     "Session ID" := 0;
+                   END;
+
+                   EXIT(TRUE);
+                 END;
+
+    OnAfterGetRecord=BEGIN
+                       IsDebugging := DEBUGGER.ISACTIVE AND ("Session ID" = DEBUGGER.DEBUGGINGSESSIONID);
+                       IsDebugged := DEBUGGER.ISATTACHED AND ("Session ID" = DEBUGGER.DEBUGGEDSESSIONID);
+                       IsSQLTracing := DEBUGGER.ENABLESQLTRACE("Session ID");
+                       IsRowSessionActive := ISSESSIONACTIVE("Session ID");
+
+                       // If this is the empty row, clear the Session ID and Client Type
+                       IF "Session ID" = 0 THEN BEGIN
+                         SessionIdText := '';
+                         ClientTypeText := '';
+                       END ELSE BEGIN
+                         SessionIdText := FORMAT("Session ID");
+                         ClientTypeText := FORMAT("Client Type");
+                       END;
+                     END;
+
+    ActionList=ACTIONS
+    {
+      { 9       ;    ;ActionContainer;
+                      ActionContainerType=ActionItems }
+      { 8       ;1   ;Separator  }
+      { 13      ;1   ;ActionGroup;
+                      Name=Session;
+                      CaptionML=[ENU=Session;
+                                 ESP=Sesi¢n] }
+      { 11      ;2   ;Action    ;
+                      Name=Debug Selected Session;
+                      ShortCutKey=Shift+Ctrl+S;
+                      CaptionML=[ENU=Debug;
+                                 ESP=Depurar];
+                      ToolTipML=[ENU=Debug the selected session;
+                                 ESP=Depura la sesi¢n seleccionada.];
+                      ApplicationArea=#All;
+                      Promoted=Yes;
+                      Enabled=CanDebugSelectedSession;
+                      PromotedIsBig=Yes;
+                      Image=Debug;
+                      PromotedCategory=Category4;
+                      OnAction=BEGIN
+                                 DebuggerManagement.SetDebuggedSession(Rec);
+                                 DebuggerManagement.OpenDebuggerTaskPage;
+                               END;
+                                }
+      { 10      ;2   ;Action    ;
+                      Name=Debug Next Session;
+                      ShortCutKey=Shift+Ctrl+N;
+                      CaptionML=[ENU=Debug Next;
+                                 ESP=Depurar siguiente];
+                      ToolTipML=[ENU=Debug the next session that breaks code execution.;
+                                 ESP=Depura la siguiente sesi¢n que interrumpe la ejecuci¢n del c¢digo.];
+                      ApplicationArea=#All;
+                      Promoted=Yes;
+                      Enabled=CanDebugNextSession;
+                      PromotedIsBig=Yes;
+                      Image=DebugNext;
+                      PromotedCategory=Category4;
+                      OnAction=VAR
+                                 DebuggedSessionTemp@1001 : Record 2000000110;
+                               BEGIN
+                                 DebuggedSessionTemp."Session ID" := 0;
+                                 DebuggerManagement.SetDebuggedSession(DebuggedSessionTemp);
+                                 DebuggerManagement.OpenDebuggerTaskPage;
+                               END;
+                                }
+      { 1000000000;2 ;Action    ;
+                      Name=DeleteSesion;
+                      CaptionML=[ENU=Delete Sesion;
+                                 ESP=Eliminar Sesi¢n];
+                      Promoted=Yes;
+                      PromotedIsBig=Yes;
+                      Image=Delete;
+                      PromotedCategory=Process;
+                      OnAction=BEGIN
+                                 //Boton para cerrar sesion
+                                 STOPSESSION("Session ID");
+                               END;
+                                }
+      { 19      ;1   ;ActionGroup;
+                      Name=SQL Trace;
+                      CaptionML=[ENU=SQL Trace;
+                                 ESP=Seguimiento SQL] }
+      { 20      ;2   ;Action    ;
+                      Name=Start Full SQL Tracing;
+                      CaptionML=[ENU=Start Full SQL Tracing;
+                                 ESP=Iniciar seguimiento SQL completo];
+                      ToolTipML=[ENU=Start SQL tracing.;
+                                 ESP=Inicia el seguimiento SQL.];
+                      ApplicationArea=#All;
+                      Promoted=Yes;
+                      Enabled=NOT FullSQLTracingStarted;
+                      Image=Continue;
+                      PromotedCategory=Category5;
+                      OnAction=BEGIN
+                                 DEBUGGER.ENABLESQLTRACE(0,TRUE);
+                                 FullSQLTracingStarted := TRUE;
+                               END;
+                                }
+      { 21      ;2   ;Action    ;
+                      Name=Stop Full SQL Tracing;
+                      CaptionML=[ENU=Stop Full SQL Tracing;
+                                 ESP=Detener seguimiento SQL completo];
+                      ToolTipML=[ENU=Stop the current SQL tracing.;
+                                 ESP=Detiene el seguimiento SQL actual.];
+                      ApplicationArea=#All;
+                      Promoted=Yes;
+                      Enabled=FullSQLTracingStarted;
+                      Image=Stop;
+                      PromotedCategory=Category5;
+                      OnAction=BEGIN
+                                 DEBUGGER.ENABLESQLTRACE(0,FALSE);
+                                 FullSQLTracingStarted := FALSE;
+                               END;
+                                }
+      { 17      ;1   ;ActionGroup;
+                      Name=Event;
+                      CaptionML=[ENU=Event;
+                                 ESP=Evento] }
+      { 18      ;2   ;Action    ;
+                      Name=Subscriptions;
+                      CaptionML=[ENU=Subscriptions;
+                                 ESP=Suscripciones];
+                      ToolTipML=[ENU=Show event subscriptions.;
+                                 ESP=Permite mostrar las suscripciones a eventos.];
+                      ApplicationArea=#All;
+                      RunObject=Page 9510;
+                      Promoted=Yes;
+                      Image=Event;
+                      PromotedCategory=Category6 }
+    }
+  }
+  CONTROLS
+  {
+    { 1   ;0   ;Container ;
+                ContainerType=ContentArea }
+
+    { 2   ;1   ;Group     ;
+                Name=Group;
+                GroupType=Repeater }
+
+    { 3   ;2   ;Field     ;
+                CaptionML=[ENU=Session ID;
+                           ESP=Id. sesi¢n];
+                ToolTipML=[ENU=Specifies the session in the list.;
+                           ESP=Especifica la sesi¢n en la lista.];
+                ApplicationArea=#All;
+                SourceExpr=SessionIdText;
+                Editable=FALSE }
+
+    { 4   ;2   ;Field     ;
+                CaptionML=[ENU=User ID;
+                           ESP=Id. usuario];
+                ToolTipML=[ENU=Specifies the user name of the user who is logged on to the active session.;
+                           ESP=Especifica el nombre del usuario que ha iniciado sesi¢n en la sesi¢n activa.];
+                ApplicationArea=#All;
+                SourceExpr="User ID";
+                Editable=FALSE }
+
+    { 15  ;2   ;Field     ;
+                CaptionML=[ENU=SQL Tracing;
+                           ESP=Seguimiento SQL];
+                ToolTipML=[ENU=Specifies if SQL tracing is enabled.;
+                           ESP=Especifica si el seguimiento SQL est  habilitado.];
+                ApplicationArea=#All;
+                SourceExpr=IsSQLTracing;
+                Editable=IsRowSessionActive;
+                OnValidate=BEGIN
+                             IsSQLTracing := DEBUGGER.ENABLESQLTRACE("Session ID",IsSQLTracing);
+                           END;
+                            }
+
+    { 5   ;2   ;Field     ;
+                Name=Client Type;
+                CaptionML=[ENU=Client Type;
+                           ESP=Tipo cliente];
+                ToolTipML=[ENU="Specifies the client type on which the session event occurred, such as Web Service and Client Service . ";
+                           ESP="Especifica el tipo de cliente en que se ha producido el evento de sesi¢n como servicio web y servicio cliente. "];
+                ApplicationArea=#All;
+                SourceExpr=ClientTypeText;
+                Editable=FALSE }
+
+    { 6   ;2   ;Field     ;
+                CaptionML=[ENU=Login Date;
+                           ESP=Fecha conexi¢n];
+                ToolTipML=[ENU=Specifies the date and time that the session started on the Dynamics NAV Server instance.;
+                           ESP=Especifica la fecha y la hora en que se inici¢ la sesi¢n en la instancia de servidor de Dynamics NAV.];
+                ApplicationArea=#All;
+                SourceExpr="Login Datetime";
+                Editable=FALSE }
+
+    { 14  ;2   ;Field     ;
+                CaptionML=[ENU=Server Computer Name;
+                           ESP=Nombre equipo servidor];
+                ToolTipML=[ENU=Specifies the fully qualified domain name (FQDN) of the computer on which the Dynamics NAV Server instance runs.;
+                           ESP=Especifica el nombre de dominio completo (FQDN) del equipo en el que se ejecuta la instancia de servidor de Dynamics NAV.];
+                ApplicationArea=#All;
+                SourceExpr="Server Computer Name";
+                Editable=FALSE }
+
+    { 7   ;2   ;Field     ;
+                CaptionML=[ENU=Server Instance Name;
+                           ESP=Nombre instancia servidor];
+                ToolTipML=[ENU=Specifies the name of the Dynamics NAV Server instance to which the session is connected. The server instance name comes from the Session Event table.;
+                           ESP=Especifica el nombre de la instancia de servidor de Dynamics NAV a la que est  conectada la sesi¢n. El nombre de la instancia del servidor proviene de la tabla Evento de sesi¢n.];
+                ApplicationArea=#All;
+                SourceExpr="Server Instance Name";
+                Editable=FALSE }
+
+    { 12  ;2   ;Field     ;
+                CaptionML=[ENU=Debugging;
+                           ESP=Depuraci¢n];
+                ToolTipML=[ENU=Specifies sessions that are being debugged.;
+                           ESP=Especifica las sesiones que se est n depurando.];
+                ApplicationArea=#All;
+                SourceExpr=IsDebugging;
+                Editable=FALSE }
+
+    { 16  ;2   ;Field     ;
+                CaptionML=[ENU=Debugged;
+                           ESP=Depurado];
+                ToolTipML=[ENU=Specifies debugged sessions.;
+                           ESP=Especifica las sesiones depuradas.];
+                ApplicationArea=#All;
+                SourceExpr=IsDebugged;
+                Editable=FALSE }
+
+  }
+  CODE
+  {
+    VAR
+      DebuggerManagement@1000 : Codeunit 9500;
+      CanDebugNextSession@1002 : Boolean INDATASET;
+      CanDebugSelectedSession@1003 : Boolean INDATASET;
+      FullSQLTracingStarted@1008 : Boolean INDATASET;
+      IsDebugging@1004 : Boolean;
+      IsDebugged@1005 : Boolean;
+      IsSQLTracing@1007 : Boolean;
+      IsRowSessionActive@1009 : Boolean;
+      SessionIdText@1001 : Text;
+      ClientTypeText@1006 : Text;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+      #En este caso solo se ha creado el boton DeleteSesion el resto de codigo es estandar de Navision
+    }
+    END.
+  }
+}
+

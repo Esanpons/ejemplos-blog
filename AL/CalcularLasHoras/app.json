@@ -1,0 +1,36 @@
+{
+  "id": "2e61f853-3340-40c5-aca0-5b705c0c0ddb",
+  "name": "Calcular las horas",
+  "publisher": "Esteve Sanpons",
+  "version": "1.0.0.0",
+  "brief": "Calcular las horas",
+  "description": "Calcular las horas",
+  "privacyStatement": "https://github.com/Esanpons",
+  "EULA": "https://github.com/Esanpons",
+  "help": "https://github.com/Esanpons",
+  "url": "https://github.com/Esanpons",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "21.0.0.0",
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 50149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "includeSourceInSymbolFile": false,
+    "allowDebugging": true,
+    "allowDownloadingSource": false
+  },
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "TranslationFile"
+  ],
+  "runtime": "10.0"
+}

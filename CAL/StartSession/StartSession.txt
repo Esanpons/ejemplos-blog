@@ -1,0 +1,29 @@
+OBJECT Codeunit 50007 StartSesion
+{
+  OBJECT-PROPERTIES
+  {
+    Date=21/04/22;
+    Time=21:14:03;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            SalesHeader.FINDFIRST;
+
+            STARTSESSION(NewSessionId,CODEUNIT::"Sales-Post",COMPANYNAME,SalesHeader);
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      NewSessionId@1000000000 : Integer;
+      SalesHeader@1000000001 : Record 36;
+
+    BEGIN
+    END.
+  }
+}
+

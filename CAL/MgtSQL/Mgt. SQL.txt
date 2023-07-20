@@ -1,0 +1,309 @@
+OBJECT Codeunit 50077 Mgt. SQL
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/02/23;
+    Time=16:18:39;
+    Modified=Yes;
+    Version List=SQL,UTILS;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      g_SQLConnection@1000000000 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlConnection";
+      g_ServerName@1000000002 : Text;
+      g_DBName@1000000001 : Text;
+      g_EvitarFormateo@1000000003 : Boolean;
+      SqlUpdateLabel@1000000004 : TextConst 'ENU="UPDATE [dbo].[CRONUS Espa¤a S_A_$Customer] SET [Name] = ''Esanpons'' WHERE [No_] = ''01121212''";ESP="UPDATE [dbo].[CRONUS Espa¤a S_A_$Customer] SET [Name] = ''Esanpons'' WHERE [No_] = ''01121212''"';
+      SqlSelectLabel@1000000005 : TextConst 'ENU=SELECT * FROM [CRONUS Espa¤a S_A_$Customer];ESP=SELECT * FROM [CRONUS Espa¤a S_A_$Customer]';
+
+    PROCEDURE InitSQLConnection@1000000009(ServerName@1000000000 : Text;DBName@1000000001 : Text);
+    VAR
+      txt01@1000000002 : TextConst 'ENU="Data Source=%1;Initial Catalog=%2;Integrated Security=SSPI";ESP="Data Source=%1;Initial Catalog=%2;Integrated Security=SSPI"';
+    BEGIN
+      //iniciar la conexion
+      CLEAR(g_SQLConnection);
+
+      g_ServerName := ServerName;
+      g_DBName := DBName;
+
+      g_SQLConnection := g_SQLConnection.SqlConnection(STRSUBSTNO(txt01,ServerName,DBName));
+      g_SQLConnection.Open;
+    END;
+
+    PROCEDURE CloseSQLConnection@1000000011();
+    BEGIN
+      g_SQLConnection.Close;
+      CLEAR(g_SQLConnection);
+    END;
+
+    PROCEDURE ExecuteQuerySQL@1000000018(CommandString@1000 : Text) : Integer;
+    VAR
+      SQLCommand@1003 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      NoOfAffectedRows@1001 : Integer;
+    BEGIN
+      //ejecutar querys de modificacion
+      CLEAR(SQLCommand);
+
+      SQLCommand := SQLCommand.SqlCommand(CommandString,g_SQLConnection);
+      SQLCommand.CommandTimeout(0);
+      NoOfAffectedRows := SQLCommand.ExecuteNonQuery;
+
+      EXIT(NoOfAffectedRows);
+    END;
+
+    PROCEDURE GetSQLSelectToRec@1000000029(QuerySQL@1000000003 : Text;VAR RecRef@1000000011 : RecordRef);
+    VAR
+      SqlCommand@1000000001 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      SqlDataReader@1000000002 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlDataReader";
+      txt_Type@1000000005 : Text;
+      Value@1000000007 : Variant;
+      Count@1000000008 : Integer;
+      Index@1000000009 : Integer;
+      NameFieldRef@1000000013 : Text;
+      Field_Ref@1000000012 : FieldRef;
+      Value_Time@1000000017 : Time;
+      Value_Date@1000000004 : Date;
+      DateText@1000000010 : Text;
+      TimeText@1000000016 : Text;
+      Posicion@1000000015 : Integer;
+      error01@1000000000 : TextConst 'ENU=Type regardless: %1;ESP=Tipo sin tener en cuenta: %1';
+      txt_DateTimeInit@1000000006 : TextConst 'ENU=01/01/1753 00:00;ESP=01/01/1753 00:00';
+      TempBlob@1000000014 : Record 99008535;
+      txtClass@1000000018 : Text;
+      txt_ClassNormal@1000000019 : TextConst 'ENU=Normal;ESP=Normal';
+    BEGIN
+      //funcion para guardar en cualquier tabla temporal los datos del SQL
+      CLEAR(SqlCommand);
+      CLEAR(SqlDataReader);
+
+      //C¢digo para ejecutar un comando:
+      SqlCommand := g_SQLConnection.CreateCommand();
+      SqlCommand.CommandText := QuerySQL;
+      SqlDataReader := SqlCommand.ExecuteReader();
+
+      //Codigo para leer un DataReader:
+      WHILE SqlDataReader.Read() DO BEGIN
+        //Count := SqlDataReader.FieldCount;
+        Count := RecRef.FIELDCOUNT;
+        FOR Index :=1 TO Count DO BEGIN
+
+          CLEAR(Value);
+
+          Field_Ref := RecRef.FIELDINDEX(Index);
+          txt_Type := FORMAT(Field_Ref.TYPE);
+          NameFieldRef := FORMAT(Field_Ref.NAME);
+
+          txtClass := FORMAT(Field_Ref.CLASS);
+          IF  txtClass = txt_ClassNormal THEN BEGIN
+
+            IF NOT g_EvitarFormateo THEN
+              NameFieldRef := CONVERTSTR(StringConvert(NameFieldRef),'.','_');
+
+            IF InsertValue(Value,SqlDataReader,NameFieldRef) THEN BEGIN
+              CASE txt_Type OF
+                'Code','Text','OemText':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'Integer':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'Boolean':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'Decimal':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'BigInteger':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'Date':
+                  BEGIN
+                    IF FORMAT(Value) <> txt_DateTimeInit THEN BEGIN
+                      DateText := FORMAT(Value);
+                      Posicion := STRPOS(DateText,' ')-1;
+
+                      DateText := COPYSTR(DateText,1,Posicion);
+                      EVALUATE(Value_Date,DateText);
+
+                      Field_Ref.VALUE(Value_Date);
+                    END;
+                  END;
+                'DateFormula':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'DateTime':
+                  BEGIN
+                    IF FORMAT(Value) <> txt_DateTimeInit THEN BEGIN
+                      Field_Ref.VALUE(Value);
+                    END;
+                  END;
+                'Option':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                'Time':
+                  BEGIN
+                    IF FORMAT(Value) <> txt_DateTimeInit THEN BEGIN
+                      TimeText := FORMAT(Value);
+                      Posicion := STRPOS(TimeText,' ')+1;
+
+                      TimeText := COPYSTR(TimeText,Posicion,STRLEN(TimeText));
+                      EVALUATE(Value_Time,TimeText);
+                      Field_Ref.VALUE(Value_Time);
+                    END;
+                  END;
+                'BLOB':
+                  BEGIN
+                    //Este lo dejamos vacio para que lo salte
+                  END;
+                'Media':
+                  BEGIN
+                    //Este lo dejamos vacio para que lo salte
+                  END;
+                'GUID':
+                  BEGIN
+                    Field_Ref.VALUE(Value);
+                  END;
+                ELSE
+                  BEGIN
+                    ERROR(error01,txt_Type);
+                  END;
+              END;
+            END;
+          END;
+        END;
+
+        //Insertar despues de cada linea
+        RecRef.INSERT;
+      END;
+    END;
+
+    PROCEDURE ExecuteScalar@1000000007(vSqlCommand@1000000000 : Text) Idx : Decimal;
+    VAR
+      SqlCommand@1000000001 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      vVariant@1000000002 : Variant;
+    BEGIN
+      SqlCommand := g_SQLConnection.CreateCommand();
+
+      SqlCommand.CommandText := vSqlCommand;
+
+      vVariant := SqlCommand.ExecuteScalar();
+      IF vVariant.ISDECIMAL THEN
+        Idx := vVariant
+      ELSE
+        Idx := 0;
+      EXIT(Idx);
+    END;
+
+    PROCEDURE GetSQLConnection@1000000002(VAR l_SQLConnection@1000000000 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlConnection");
+    BEGIN
+      l_SQLConnection := g_SQLConnection
+    END;
+
+    PROCEDURE SetEvitarFormateo@1000000006(SetEvitarFormateo@1000000000 : Boolean);
+    BEGIN
+      g_EvitarFormateo := SetEvitarFormateo;
+    END;
+
+    LOCAL PROCEDURE StringConvert@2(NAVName@1000 : Text[80]) : Text[80];
+    VAR
+      dbpropertyInitialized@1000000002 : Boolean;
+      dbpropFromStr@1000000001 : Text[30];
+      dbpropToStr@1000000000 : Text[30];
+      i@1001 : Integer;
+    BEGIN
+      IF NOT dbpropertyInitialized THEN BEGIN
+        dbpropertyInitialized := TRUE;
+        IF GetDBPropertyField('convertidentifiers') = '1' THEN BEGIN
+          dbpropFromStr := GetDBPropertyField('invalididentifierchars');
+          FOR i := 1 TO STRLEN(dbpropFromStr) DO
+            dbpropToStr += '_';
+        END;
+      END;
+
+      EXIT(CONVERTSTR(NAVName,dbpropFromStr,dbpropToStr));
+    END;
+
+    LOCAL PROCEDURE GetDBPropertyField@11(FieldName@1000 : Text) : Text;
+    VAR
+      SQLCommand@1003 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      SQLConnection@1002 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlConnection";
+      QuerySQL@1004 : Text;
+      FieldValue@1005 : Text;
+      l_SQLMgtUtils@1000000000 : Codeunit 50077;
+    BEGIN
+      IF FieldName = '' THEN
+        EXIT('');
+
+      QuerySQL := STRSUBSTNO('select top 1 [%1] from [$ndo$dbproperty]',FieldName);
+
+      CLEAR(l_SQLMgtUtils);
+
+      l_SQLMgtUtils.InitSQLConnection(g_ServerName,g_DBName);
+      l_SQLMgtUtils.GetSQLConnection(SQLConnection);
+
+      SQLCommand := SQLCommand.SqlCommand(QuerySQL,SQLConnection);
+      SQLCommand.CommandTimeout(0);
+
+      FieldValue := FORMAT(SQLCommand.ExecuteScalar);
+
+      SQLConnection.Close;
+      l_SQLMgtUtils.CloseSQLConnection();
+
+      EXIT(FieldValue);
+    END;
+
+    LOCAL PROCEDURE InsertValue@1000000000(VAR Value@1000000002 : Variant;SqlDataReader@1000000001 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlDataReader";NameFieldRef@1000000000 : Text) : Boolean;
+    BEGIN
+      Value := SqlDataReader.Item(NameFieldRef);
+      EXIT(TRUE);
+    END;
+
+    EVENT g_SQLConnection@1000000000::InfoMessage@53(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlInfoMessageEventArgs");
+    BEGIN
+    END;
+
+    EVENT g_SQLConnection@1000000000::StateChange@54(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.StateChangeEventArgs");
+    BEGIN
+    END;
+
+    EVENT g_SQLConnection@1000000000::Disposed@55(sender@1000000001 : Variant;e@1000000000 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.EventArgs");
+    BEGIN
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
+
+
+      //ejecutar una sentencia SQL devolvera el numero de filas afectadas
+      InitSQLConnection(NombreServidor,NombreBBDD);
+      ExecuteQuerySQL(SqlUpdateLabel);
+      CloseSQLConnection();
+
+      //hace un select y devuelve en un rec temporal los datos.
+      RecRef.OPEN(18,true,COMPANYNAME);
+      InitSQLConnection(NombreServidorTest,NombreBBDDTest);
+      GetSQLSelectToRec(SqlSelectLabel,RecRef);
+      CloseSQLConnection();
+    }
+    END.
+  }
+}
+

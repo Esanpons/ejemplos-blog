@@ -1,0 +1,80 @@
+OBJECT Codeunit 50098 Check Permimisions
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/02/23;
+    Time=17:11:46;
+    Modified=Yes;
+    Version List=UTILS, Permission;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      error01@1000000000 : TextConst 'ENU=You do not have permissions. Contact the Administrator;ESP=No tienes permisos. Contacte con el Administrador';
+      AccessControl@1000000003 : Record 2000000053;
+      User@1000000002 : Record 2000000120;
+      CompName@1000000001 : Text;
+
+    PROCEDURE CheckAccessControl@1000000001(User_ID@1000000000 : Text;txtRol@1000000001 : Text) : Boolean;
+    VAR
+      AccessControl@1000000002 : Record 2000000053;
+      User@1000000003 : Record 2000000120;
+      User_Administrador@1000000004 : TextConst 'ENU=ADMINISTRADOR;ESP=ADMINISTRADOR';
+      Rol_Admin@1000000005 : TextConst 'ESP=_SYSTEMADMIN';
+      CompName@1000000006 : Text;
+    BEGIN
+      CompName := COMPANYNAME;
+
+      //buscamos el usuario para tener el user security
+      User.RESET;
+      User.SETRANGE("User Name",User_ID);
+      IF NOT User.FINDFIRST THEN
+        ERROR('');
+
+      // Si el usuario es el ADministrador no lo chequeara
+      IF User."User Name" = User_Administrador THEN
+        EXIT(TRUE);
+
+      //Comprobamos si tiene permisos para todas las empresas
+      AccessControl.RESET;
+      AccessControl.SETRANGE("User Security ID", User."User Security ID");
+      AccessControl.SETRANGE("Role ID", txtRol);
+      AccessControl.SETFILTER("Company Name",'=%1','');
+      IF AccessControl.FINDFIRST THEN
+        EXIT(TRUE);
+
+      //Comprobamos si tiene permisos en la empresa actual
+      AccessControl.RESET;
+      AccessControl.SETRANGE("User Security ID", User."User Security ID");
+      AccessControl.SETRANGE("Role ID", txtRol);
+      AccessControl.SETRANGE("Company Name",CompName);
+      IF AccessControl.FINDFIRST THEN
+        EXIT(TRUE);
+
+      EXIT(FALSE);
+    END;
+
+    PROCEDURE CheckConError@1000000008(User_ID@1000000001 : Text;txtRol@1000000000 : Text);
+    VAR
+      error01@1000000002 : TextConst 'ENU=You do not have permissions. Contact the Administrator;ESP=No tienes permisos. Contacte con el Administrador';
+    BEGIN
+      IF NOT CheckAccessControl(User_ID,txtRol) THEN
+        ERROR(error01);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://github.com/Esanpons
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

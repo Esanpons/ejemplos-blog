@@ -1,0 +1,36 @@
+{
+    "id": "f97115cf-d17e-42a6-8ab2-4b76970e864b",
+    "publisher": "Esteve Sanpons",
+    "name": "Api Graph",
+    "brief": "Api Graph",
+    "description": "Api Graph",
+    "version": "1.0.0.1",
+    "privacyStatement": "https://github.com/Esanpons",
+    "EULA": "https://github.com/Esanpons",
+    "help": "https://github.com/Esanpons",
+    "url": "https://github.com/Esanpons",
+    "logo": "",
+    "dependencies": [],
+    "screenshots": [],
+    "application": "1.0.0.0",
+    "platform": "20.0.0.0",
+    "idRanges": [
+        {
+            "from": 62000,
+            "to": 70000
+        }
+    ],
+    "resourceExposurePolicy": {
+        "includeSourceInSymbolFile": false,
+        "allowDebugging": true,
+        "allowDownloadingSource": false
+    },
+    "supportedLocales": [
+        "en-US",
+        "es-ES"
+    ],
+    "features": [
+        "TranslationFile"
+    ],
+    "runtime": "9.0"
+}

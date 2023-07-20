@@ -1,0 +1,87 @@
+OBJECT Codeunit 50001 RecRef And FieldRef
+{
+  OBJECT-PROPERTIES
+  {
+    Date=03/03/22;
+    Time=22:14:27;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+
+            Customer.GET('10000');
+
+            MESSAGE(STRSUBSTNO(txt01,Customer.Name));
+
+            ModificarValorDeCualquierCampoDesDeUnaTablaEspecifica(Customer,Customer.FIELDNO(Name),txt02);
+
+            TxtResult := DevolverValorDeCualquierCampoDesDeUnaTablaEspecifica(Customer,Customer.FIELDNO(Name));
+
+            MESSAGE(STRSUBSTNO(txt03,TxtResult));
+
+            BooResult := BuscarRetornarElValorDeUnCampoAtravesDeIdDeTabla(18,Customer.FIELDNO("No."), '10000..20000');
+
+            MESSAGE(STRSUBSTNO(txt04,FORMAT(BooResult)));
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      MyRecordRef@1000000000 : RecordRef;
+      MyFieldRef@1000000001 : FieldRef;
+      Customer@1000000003 : Record 18;
+      TxtResult@1000000004 : Text;
+      BooResult@1000000002 : Boolean;
+      txt01@1000000005 : TextConst 'ESP=Primer Msg: el nombre del cliente es: %1';
+      txt02@1000000006 : TextConst 'ESP=Nuevo nombre';
+      txt03@1000000007 : TextConst 'ESP=Segundo Msg: el nombre del cliente es: %1';
+      txt04@1000000008 : TextConst 'ESP=Despues de filtrar, existe: %1';
+
+    LOCAL PROCEDURE ModificarValorDeCualquierCampoDesDeUnaTablaEspecifica@1000000001(RecVariant@1000000000 : Variant;FieldNo@1000000001 : Integer;Value@1000000003 : Variant);
+    BEGIN
+      CLEAR(MyRecordRef);
+      CLEAR(MyFieldRef);
+
+      MyRecordRef.GETTABLE(RecVariant);
+      MyFieldRef := MyRecordRef.FIELD(FieldNo);
+      MyFieldRef.VALIDATE(Value);
+      MyRecordRef.MODIFY(TRUE);
+    END;
+
+    LOCAL PROCEDURE DevolverValorDeCualquierCampoDesDeUnaTablaEspecifica@1000000011(RecVariant@1000000001 : Variant;FieldNo@1000000000 : Integer) : Text;
+    BEGIN
+      CLEAR(MyRecordRef);
+      CLEAR(MyFieldRef);
+
+      MyRecordRef.GETTABLE(RecVariant);
+      MyFieldRef := MyRecordRef.FIELD(FieldNo);
+
+      EXIT(FORMAT(MyFieldRef.VALUE));
+
+    END;
+
+    LOCAL PROCEDURE BuscarRetornarElValorDeUnCampoAtravesDeIdDeTabla@1000000016(IdTable@1000000001 : Integer;FieldNo@1000000000 : Integer;FilterValueText@1000000002 : Text) : Boolean;
+    BEGIN
+      CLEAR(MyRecordRef);
+      CLEAR(MyFieldRef);
+
+      MyRecordRef.OPEN(IdTable);
+      MyFieldRef := MyRecordRef.FIELD(FieldNo);
+      MyFieldRef.SETFILTER(FilterValueText);
+
+      EXIT(MyRecordRef.FINDFIRST);
+    END;
+
+    BEGIN
+    {
+      #Creado por Esteve Sanpons Carballares.
+      #https://www.aesva.es
+      #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+    }
+    END.
+  }
+}
+

@@ -1,0 +1,29 @@
+OBJECT Codeunit 50078 EjemploPruebasDLLEnCAL
+{
+  OBJECT-PROPERTIES
+  {
+    Date=31/10/22;
+    Time=13:22:05;
+    Modified=Yes;
+    Version List=UTILS,CreateDLL;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            EjemploBasicoDLL := EjemploBasicoDLL.PruebasDLL;
+            TextoMensaje := EjemploBasicoDLL.DevolverTexto('Esteve Sanpons');
+            MESSAGE(TextoMensaje);
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      EjemploBasicoDLL@1000000000 : DotNet "'EjemploBasicoDLL, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3f4ac93f3b04793e'.EjemploBasicoDLL.Class.PruebasDLL";
+      TextoMensaje@1000000001 : Text;
+
+    BEGIN
+    END.
+  }
+}
+

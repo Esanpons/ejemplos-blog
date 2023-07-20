@@ -19,7 +19,7 @@ OBJECT Page 9506 Session List
     PageType=List;
     RefreshOnActivate=Yes;
     PromotedActionCategoriesML=[ENU=New,Process,Report,Session,SQL Trace,Events;
-                                ESP=Nuevo,Procesar,Informe,Sesi¢n,Seguimiento SQL,Eventos];
+                                ESP=Nuevo,Procesar,Informe,Sesiï¿½n,Seguimiento SQL,Eventos];
     OnOpenPage=BEGIN
                  FILTERGROUP(2);
                  SETFILTER("Server Instance ID",'=%1',SERVICEINSTANCEID);
@@ -66,14 +66,14 @@ OBJECT Page 9506 Session List
       { 13      ;1   ;ActionGroup;
                       Name=Session;
                       CaptionML=[ENU=Session;
-                                 ESP=Sesi¢n] }
+                                 ESP=Sesiï¿½n] }
       { 11      ;2   ;Action    ;
                       Name=Debug Selected Session;
                       ShortCutKey=Shift+Ctrl+S;
                       CaptionML=[ENU=Debug;
                                  ESP=Depurar];
                       ToolTipML=[ENU=Debug the selected session;
-                                 ESP=Depura la sesi¢n seleccionada.];
+                                 ESP=Depura la sesiï¿½n seleccionada.];
                       ApplicationArea=#All;
                       Promoted=Yes;
                       Enabled=CanDebugSelectedSession;
@@ -91,7 +91,7 @@ OBJECT Page 9506 Session List
                       CaptionML=[ENU=Debug Next;
                                  ESP=Depurar siguiente];
                       ToolTipML=[ENU=Debug the next session that breaks code execution.;
-                                 ESP=Depura la siguiente sesi¢n que interrumpe la ejecuci¢n del c¢digo.];
+                                 ESP=Depura la siguiente sesiï¿½n que interrumpe la ejecuciï¿½n del cï¿½digo.];
                       ApplicationArea=#All;
                       Promoted=Yes;
                       Enabled=CanDebugNextSession;
@@ -109,7 +109,7 @@ OBJECT Page 9506 Session List
       { 1000000000;2 ;Action    ;
                       Name=DeleteSesion;
                       CaptionML=[ENU=Delete Sesion;
-                                 ESP=Eliminar Sesi¢n];
+                                 ESP=Eliminar Sesiï¿½n];
                       Promoted=Yes;
                       PromotedIsBig=Yes;
                       Image=Delete;
@@ -183,9 +183,9 @@ OBJECT Page 9506 Session List
 
     { 3   ;2   ;Field     ;
                 CaptionML=[ENU=Session ID;
-                           ESP=Id. sesi¢n];
+                           ESP=Id. sesiï¿½n];
                 ToolTipML=[ENU=Specifies the session in the list.;
-                           ESP=Especifica la sesi¢n en la lista.];
+                           ESP=Especifica la sesiï¿½n en la lista.];
                 ApplicationArea=#All;
                 SourceExpr=SessionIdText;
                 Editable=FALSE }
@@ -194,7 +194,7 @@ OBJECT Page 9506 Session List
                 CaptionML=[ENU=User ID;
                            ESP=Id. usuario];
                 ToolTipML=[ENU=Specifies the user name of the user who is logged on to the active session.;
-                           ESP=Especifica el nombre del usuario que ha iniciado sesi¢n en la sesi¢n activa.];
+                           ESP=Especifica el nombre del usuario que ha iniciado sesiï¿½n en la sesiï¿½n activa.];
                 ApplicationArea=#All;
                 SourceExpr="User ID";
                 Editable=FALSE }
@@ -203,7 +203,7 @@ OBJECT Page 9506 Session List
                 CaptionML=[ENU=SQL Tracing;
                            ESP=Seguimiento SQL];
                 ToolTipML=[ENU=Specifies if SQL tracing is enabled.;
-                           ESP=Especifica si el seguimiento SQL est  habilitado.];
+                           ESP=Especifica si el seguimiento SQL estï¿½ habilitado.];
                 ApplicationArea=#All;
                 SourceExpr=IsSQLTracing;
                 Editable=IsRowSessionActive;
@@ -217,16 +217,16 @@ OBJECT Page 9506 Session List
                 CaptionML=[ENU=Client Type;
                            ESP=Tipo cliente];
                 ToolTipML=[ENU="Specifies the client type on which the session event occurred, such as Web Service and Client Service . ";
-                           ESP="Especifica el tipo de cliente en que se ha producido el evento de sesi¢n como servicio web y servicio cliente. "];
+                           ESP="Especifica el tipo de cliente en que se ha producido el evento de sesiï¿½n como servicio web y servicio cliente. "];
                 ApplicationArea=#All;
                 SourceExpr=ClientTypeText;
                 Editable=FALSE }
 
     { 6   ;2   ;Field     ;
                 CaptionML=[ENU=Login Date;
-                           ESP=Fecha conexi¢n];
+                           ESP=Fecha conexiï¿½n];
                 ToolTipML=[ENU=Specifies the date and time that the session started on the Dynamics NAV Server instance.;
-                           ESP=Especifica la fecha y la hora en que se inici¢ la sesi¢n en la instancia de servidor de Dynamics NAV.];
+                           ESP=Especifica la fecha y la hora en que se iniciï¿½ la sesiï¿½n en la instancia de servidor de Dynamics NAV.];
                 ApplicationArea=#All;
                 SourceExpr="Login Datetime";
                 Editable=FALSE }
@@ -244,16 +244,16 @@ OBJECT Page 9506 Session List
                 CaptionML=[ENU=Server Instance Name;
                            ESP=Nombre instancia servidor];
                 ToolTipML=[ENU=Specifies the name of the Dynamics NAV Server instance to which the session is connected. The server instance name comes from the Session Event table.;
-                           ESP=Especifica el nombre de la instancia de servidor de Dynamics NAV a la que est  conectada la sesi¢n. El nombre de la instancia del servidor proviene de la tabla Evento de sesi¢n.];
+                           ESP=Especifica el nombre de la instancia de servidor de Dynamics NAV a la que estï¿½ conectada la sesiï¿½n. El nombre de la instancia del servidor proviene de la tabla Evento de sesiï¿½n.];
                 ApplicationArea=#All;
                 SourceExpr="Server Instance Name";
                 Editable=FALSE }
 
     { 12  ;2   ;Field     ;
                 CaptionML=[ENU=Debugging;
-                           ESP=Depuraci¢n];
+                           ESP=Depuraciï¿½n];
                 ToolTipML=[ENU=Specifies sessions that are being debugged.;
-                           ESP=Especifica las sesiones que se est n depurando.];
+                           ESP=Especifica las sesiones que se estï¿½n depurando.];
                 ApplicationArea=#All;
                 SourceExpr=IsDebugging;
                 Editable=FALSE }
@@ -285,7 +285,7 @@ OBJECT Page 9506 Session List
     BEGIN
     {
       #Creado por Esteve Sanpons Carballares.
-      #https://github.com/Esanpons
+      #https://www.aesva.es
       #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
       #En este caso solo se ha creado el boton DeleteSesion el resto de codigo es estandar de Navision
     }

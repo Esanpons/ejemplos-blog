@@ -1,0 +1,38 @@
+{
+  "id": "f2685fc7-e4c3-4d79-b9c0-cfc281f93d98",
+  "name": "Ejemplo Basico DLL BC OnPrem",
+  "publisher": "Esteve Sanpons Carballares",
+  "version": "1.0.0.0",
+  "brief": "Ejemplo Basico DLL BC OnPrem",
+  "description": "Ejemplo Basico DLL BC OnPrem",
+  "privacyStatement": "https://www.aesva.es",
+  "EULA": "https://www.aesva.es",
+  "help": "https://www.aesva.es",
+  "url": "https://www.aesva.es",
+  "contextSensitiveHelpUrl": "https://www.aesva.es",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "20.0.0.0",
+  "idRanges": [
+    {
+      "from": 70100,
+      "to": 70149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "includeSourceInSymbolFile": false,
+    "allowDebugging": false,
+    "allowDownloadingSource": false
+  },
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "TranslationFile"
+  ],
+  "runtime": "9.0",
+  "target": "OnPrem"
+}

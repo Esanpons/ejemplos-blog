@@ -1,0 +1,36 @@
+{
+    "id": "24d62b2a-0af6-4057-adbb-266c9bade868",
+    "publisher": "Esteve Sanpons",
+    "name": "Jquery In BC",
+    "brief": "Jquery In BC",
+    "description": "Jquery In BC",
+    "version": "1.0.0.1",
+    "privacyStatement": "https://www.aesva.es",
+    "EULA": "https://www.aesva.es",
+    "help": "https://www.aesva.es",
+    "url": "https://www.aesva.es",
+    "logo": "",
+    "dependencies": [],
+    "screenshots": [],
+    "application": "1.0.0.0",
+    "platform": "20.0.0.0",
+    "idRanges": [
+        {
+            "from": 60000,
+            "to": 70000
+        }
+    ],
+    "resourceExposurePolicy": {
+        "includeSourceInSymbolFile": false,
+        "allowDebugging": true,
+        "allowDownloadingSource": false
+    },
+    "supportedLocales": [
+        "en-US",
+        "es-ES"
+    ],
+    "features": [
+        "TranslationFile"
+    ],
+    "runtime": "9.0"
+}

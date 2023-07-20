@@ -1,0 +1,29 @@
+{
+    "id": "71d8f808-3949-4784-a0ec-ad62513492ac",
+    "name": "Barcodes In Sandbox",
+    "publisher": "Esteve Sanpons",
+    "brief": "Barcodes In Sandbox",
+    "description": "Barcodes In Sandbox",
+    "version": "1.0.0.0",
+    "privacyStatement": "https://www.aesva.es/barcodes-in-sandbox",
+    "EULA": "https://www.aesva.es/barcodes-in-sandbox",
+    "help": "https://www.aesva.es/barcodes-in-sandbox",
+    "url": "https://www.aesva.es/barcodes-in-sandbox",
+    "logo": "",
+    "dependencies": [],
+    "screenshots": [],
+    "application": "19.0.0.0",
+    "platform": "19.0.0.0",
+    "idRanges": [
+        {
+            "from": 50001,
+            "to": 50001
+        }
+    ],
+    "resourceExposurePolicy": {
+        "includeSourceInSymbolFile": false,
+        "allowDebugging": true,
+        "allowDownloadingSource": false
+    },
+    "runtime": "8.0"
+}

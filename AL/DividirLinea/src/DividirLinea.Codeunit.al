@@ -5,6 +5,7 @@ codeunit 50000 "DividirLinea"
         SalesShipmentLine: Record "Sales Shipment Line";
         NextLineNo: Integer;
         InitialLineNo: Integer;
+        NewLineNo: Integer;
     begin
         SalesShipmentLine.Reset();
         SalesShipmentLine.SetRange("Document No.", Rec."Document No.");
@@ -16,15 +17,23 @@ codeunit 50000 "DividirLinea"
         IF SalesShipmentLine.NEXT() <> 0 THEN
             NextLineNo := SalesShipmentLine."Line No."
         ELSE
-            NextLineNo := SalesShipmentLine."Line No." + 10000;
+            NextLineNo := Rec."Line No." + 10000;
+
+        NewLineNo := (Rec."Line No." + ((NextLineNo - InitialLineNo) DIV 2));
+
+        IF (NewLineNo = 0) OR (NewLineNo = Rec."Line No.") THEN BEGIN
+            SalesShipmentLine.FINDLAST();
+            NewLineNo := SalesShipmentLine."Line No." + 10000;
+        END;
 
         SalesShipmentLine.INIT();
-        SalesShipmentLine."Line No." := (Rec."Line No." + ((NextLineNo - InitialLineNo) DIV 2));
+        SalesShipmentLine."Line No." := NewLineNo;
         SalesShipmentLine."Document No." := Rec."Document No.";
         SalesShipmentLine.Type := SalesShipmentLine.Type::" ";
         SalesShipmentLine.Description := NewComment;
         SalesShipmentLine.Insert();
     end;
+
 
 
 }

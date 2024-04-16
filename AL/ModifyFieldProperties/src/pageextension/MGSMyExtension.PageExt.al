@@ -1,4 +1,4 @@
-pageextension 50100 "MGSMyExtension" extends "Sales Order"
+pageextension 50100 "MyExtension" extends "Sales Order"
 {
     layout
     {

@@ -1,4 +1,4 @@
-codeunit 50100 "MGS FunctionsString"
+codeunit 50100 "FunctionsString"
 {
     trigger OnRun()
     begin

@@ -29,6 +29,7 @@ report 50100 "ReportExcel"
                 DataItemLinkReference = SalesInvoiceHeader;
 
                 column(No_SalesInvoiceLine; SalesInvoiceLine."No.") { }
+                column(Type_SalesInvoiceLine; SalesInvoiceLine.Type) { }
                 column(Description_SalesInvoiceLine; SalesInvoiceLine.Description) { }
                 column(Quantity_SalesInvoiceLine; SalesInvoiceLine.Quantity) { }
                 column(UnitPrice_SalesInvoiceLine; SalesInvoiceLine."Unit Price") { }
@@ -70,6 +71,22 @@ report 50100 "ReportExcel"
                     CompanyInFormationCountryName := CountryRegion.Name
                 else
                     CompanyInFormationCountryName := CompanyInFormation."Country/Region Code";
+            end;
+        }
+
+        dataitem(AllInvoicesCustomer; "Sales Invoice Line")
+        {
+            column(PostingDate_AllInvoicesCustomer; AllInvoicesCustomer."Posting Date") { }
+            column(DocNo_AllInvoicesCustomer; AllInvoicesCustomer."Document No.") { }
+            column(No_AllInvoicesCustomer; AllInvoicesCustomer."No.") { }
+            column(Quantity_AllInvoicesCustomer; AllInvoicesCustomer.Quantity) { }
+            column(Amount_AllInvoicesCustomer; AllInvoicesCustomer.Amount) { }
+            column(AmountIncludingVAT_AllInvoicesCustomer; AllInvoicesCustomer."Amount Including VAT") { }
+
+            trigger OnPreDataItem()
+            begin
+                AllInvoicesCustomer.Reset();
+                AllInvoicesCustomer.SetRange("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
             end;
         }
     }

@@ -9,15 +9,16 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
   }
   PROPERTIES
   {
+
     OnRun=BEGIN
             Item.GET('1000');
             ItemCopy.GET('1001');
 
-            InsertarVinculo(Item,'Vinculo Git','https://www.aesva.es');
+            InsertarVinculo(Item,'Vinculo Aesva','https://www.aesva.es');
 
             MESSAGE(ExtraerPrimerVinculo(Item));
 
-            AddLinks(Item,'https://www.aesva.es/EjemplosSencillosCAL/tree/main/RecordLink_Vinculos','2� Vinculo Git');
+            AddLinks(Item,'https://www.aesva.es/blog','2nd Vinculo Aesva');
 
             IF NOT HayVinculos(ItemCopy) THEN
               CopyLinks(Item,ItemCopy);
@@ -36,7 +37,7 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
 
     LOCAL PROCEDURE InsertarVinculo@1000000002(RecVariant@1000000000 : Variant;Description@1000000001 : Text[250];Path@1000000002 : Text[250]);
     BEGIN
-      //primero a�adimos la tabla a un RecReference
+      //primero añadimos la tabla a un RecReference
       CLEAR(RecRef);
       RecRef.GETTABLE(RecVariant);
 
@@ -53,7 +54,7 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
 
     LOCAL PROCEDURE ExtraerPrimerVinculo@1000000009(RecVariant@1000000000 : Variant) : Text;
     BEGIN
-      //primero a�adimos la tabla a un RecReference
+      //primero añadimos la tabla a un RecReference
       CLEAR(RecRef);
       RecRef.GETTABLE(RecVariant);
 
@@ -68,7 +69,7 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
 
     LOCAL PROCEDURE EliminarPrimerVinculo@1000000048(RecVariant@1000000000 : Variant);
     BEGIN
-      //primero a�adimos la tabla a un RecReference
+      //primero añadimos la tabla a un RecReference
       CLEAR(RecRef);
       RecRef.GETTABLE(RecVariant);
 
@@ -81,7 +82,7 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
 
     LOCAL PROCEDURE HayVinculos@1000000007(RecVariant@1000000000 : Variant) : Boolean;
     BEGIN
-      //primero a�adimos la tabla a un RecReference
+      //primero añadimos la tabla a un RecReference
       CLEAR(RecRef);
       RecRef.GETTABLE(RecVariant);
 
@@ -90,11 +91,11 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
 
     LOCAL PROCEDURE AddLinks@1000000034(RecVariant@1000000000 : Variant;URL@1000000001 : Text;Description@1000000002 : Text);
     BEGIN
-      //primero a�adimos la tabla a un RecReference
+      //primero añadimos la tabla a un RecReference
       CLEAR(RecRef);
       RecRef.GETTABLE(RecVariant);
 
-      //a�adimos el link al record seleccionado
+      //añadimos el link al record seleccionado
       RecRef.ADDLINK(URL,Description);
     END;
 
@@ -102,11 +103,11 @@ OBJECT Codeunit 50006 RecordLink_Vinculos
     VAR
       RecRefCopy@1000000001 : RecordRef;
     BEGIN
-      //primero a�adimos la tabla a un RecReference de origen
+      //primero añadimos la tabla a un RecReference de origen
       CLEAR(RecRef);
       RecRef.GETTABLE(RecVariantOrigin);
 
-      //ahora a�adimos el RecReference de destino
+      //ahora añadimos el RecReference de destino
       CLEAR(RecRefCopy);
       RecRefCopy.GETTABLE(RecVariantCopy);
 

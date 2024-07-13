@@ -1,0 +1,33 @@
+{
+  "id": "bf4339b6-c1b5-4cc5-a3fe-4f9cd3d3d069",
+  "publisher": "Esteve Sanpons Carballares",
+  "name": "Convertir Un Rec Entero En Json",
+  "brief": "Convertir Un Rec Entero En Json",
+  "description": "Convertir Un Rec Entero En Json",
+  "version": "1.0.0.0",
+  "privacyStatement": "https://www.aesva.es/",
+  "EULA": "https://www.aesva.es/",
+  "help": "https://www.aesva.es/",
+  "url": "https://www.aesva.es/",
+  "contextSensitiveHelpUrl": "https://www.aesva.es/",
+  "logo": "./image/logo.png",
+  "dependencies": [],
+  "screenshots": [],
+  "application": "24.0.0.0",
+  "platform": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 90000
+    }
+  ],
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "NoImplicitWith",
+    "TranslationFile"
+  ],
+  "runtime": "13.0"
+}

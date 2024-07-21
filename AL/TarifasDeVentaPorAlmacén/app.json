@@ -1,0 +1,33 @@
+{
+  "id": "e7e9611c-5e60-4adf-a595-232400336df4",
+  "publisher": "Esteve Sanpons Carballares",
+  "name": "Tarifas De Venta Por Almacén",
+  "brief": "Tarifas De Venta Por Almacén",
+  "description": "Modifica el funcionamientos de los precios de venta. Modifica el filtrado para las líneas de venta para poder tener precios por almacén.",
+  "version": "1.0.0.0",
+  "privacyStatement": "https://www.aesva.es/",
+  "EULA": "https://www.aesva.es/",
+  "help": "https://www.aesva.es/",
+  "url": "https://www.aesva.es/",
+  "contextSensitiveHelpUrl": "https://www.aesva.es/",
+  "logo": "./image/logo.png",
+  "dependencies": [],
+  "screenshots": [],
+  "application": "24.0.0.0",
+  "platform": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 90000
+    }
+  ],
+  "supportedLocales": [
+    "en-US",
+    "es-ES"
+  ],
+  "features": [
+    "NoImplicitWith",
+    "TranslationFile"
+  ],
+  "runtime": "13.0"
+}

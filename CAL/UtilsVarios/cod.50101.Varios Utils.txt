@@ -143,6 +143,23 @@ OBJECT Codeunit 50101 Varios Utils
       EXIT(txt);
     END;
 
+    PROCEDURE DeterminarSiEstasEnBBDDReal@1000000002(BBDDReal@1000000002 : Text) : Boolean;
+    VAR
+      Session@1000000000 : Record 2000000009;
+    BEGIN
+      //buscamos la sesion del usuario actual
+      Session.RESET;
+      Session.SETRANGE("User ID", USERID);
+      Session.FINDFIRST;
+
+      //validamos la BBDD de la sesion actual.
+      IF Session."Database Name" = BBDDReal THEN
+        EXIT(TRUE);
+
+      EXIT(FALSE);
+    END;
+
+
     BEGIN
     {
       #Creado por Esteve Sanpons Carballares.

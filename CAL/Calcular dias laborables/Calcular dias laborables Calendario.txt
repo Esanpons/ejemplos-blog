@@ -1,0 +1,128 @@
+OBJECT Codeunit 60000 Calcular dias laborables Calendario
+{
+  OBJECT-PROPERTIES
+  {
+    Date=05/02/19;
+    Time=[ 9:37:28];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            //Ejemplos con la Cronus
+            CR := 13;
+            LF := 10;
+            SaltoLinea:=FORMAT(CR) + FORMAT(LF);
+
+            MESSAGE('Company: ' + FORMAT(SiguienteDiaCompany(050219D,7)) + SaltoLinea + SaltoLinea +
+                    'Customer: ' + FORMAT(SiguienteDiaCustomer(050219D,7,'10000')) + SaltoLinea + SaltoLinea +
+                    'Vendor: ' + FORMAT(SiguienteDiaVendor(050219D,7,'20000')) + SaltoLinea + SaltoLinea +
+                    'Shipping Agent: ' + FORMAT(SiguienteDiaShippingAgent(050219D,7,'DHL','EST�NDAR')) + SaltoLinea + SaltoLinea +
+                    'Location: ' + FORMAT(SiguienteDiaLocation(050219D,7,'AZUL')) + SaltoLinea + SaltoLinea +
+                    'Service: ' + FORMAT(SiguienteDiaService(050219D,7))
+                    );
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      CalendarManagement@1000000000 : Codeunit 7600;
+      CustomizedCalendarChange@1000000001 : Record 7602;
+      CR@1000000002 : Char;
+      LF@1000000003 : Char;
+      SaltoLinea@1000000004 : Text;
+
+    PROCEDURE SiguienteDiaCompany@1000000001(FechaInicial@1000000000 : Date;NumeroDias@1000000001 : Integer) ReturnDate : Date;
+    BEGIN
+      ReturnDate := CalendarManagement.CalcDateBOC( FORMAT(NumeroDias)+'D',
+                                                    FechaInicial,
+                                                    CustomizedCalendarChange."Source Type"::Company,
+                                                    '',
+                                                    '',
+                                                    CustomizedCalendarChange."Source Type"::Company, //Esta parte es por si no encuentra la primera parte busque la segunda se podria poner company que siemrep tendria que estas configurado
+                                                    '',
+                                                    '',
+                                                    TRUE);
+    END;
+
+    PROCEDURE SiguienteDiaCustomer@1000000008(FechaInicial@1000000000 : Date;NumeroDias@1000000001 : Integer;NumCliente@1000000002 : Code[20]) ReturnDate : Date;
+    BEGIN
+      ReturnDate := CalendarManagement.CalcDateBOC( FORMAT(NumeroDias)+'D',
+                                                    FechaInicial,
+                                                    CustomizedCalendarChange."Source Type"::Customer,
+                                                    NumCliente,
+                                                    '',
+                                                    CustomizedCalendarChange."Source Type"::Customer,//Esta parte es por si no encuentra la primera parte busque la segunda se podria poner company que siemrep tendria que estas configurado
+                                                    NumCliente,
+                                                    '',
+                                                    TRUE);
+    END;
+
+    PROCEDURE SiguienteDiaVendor@1000000009(FechaInicial@1000000000 : Date;NumeroDias@1000000001 : Integer;NumProveedor@1000000002 : Code[20]) ReturnDate : Date;
+    BEGIN
+      ReturnDate := CalendarManagement.CalcDateBOC( FORMAT(NumeroDias)+'D',
+                                                    FechaInicial,
+                                                    CustomizedCalendarChange."Source Type"::Vendor,
+                                                    NumProveedor,
+                                                    '',
+                                                    CustomizedCalendarChange."Source Type"::Vendor,//Esta parte es por si no encuentra la primera parte busque la segunda se podria poner company que siemrep tendria que estas configurado
+                                                    NumProveedor,
+                                                    '',
+                                                    TRUE);
+    END;
+
+    PROCEDURE SiguienteDiaShippingAgent@1000000010(FechaInicial@1000000000 : Date;NumeroDias@1000000001 : Integer;ShippingAgentCode@1000000002 : Code[20];ShippingAgentServiceCode@1000000003 : Code[20]) ReturnDate : Date;
+    BEGIN
+      ReturnDate := CalendarManagement.CalcDateBOC( FORMAT(NumeroDias)+'D',
+                                                    FechaInicial,
+                                                    CustomizedCalendarChange."Source Type"::"Shipping Agent",
+                                                    ShippingAgentCode,
+                                                    ShippingAgentServiceCode,
+                                                    CustomizedCalendarChange."Source Type"::"Shipping Agent",//Esta parte es por si no encuentra la primera parte busque la segunda se podria poner company que siemrep tendria que estas configurado
+                                                    ShippingAgentCode,
+                                                    ShippingAgentServiceCode,
+                                                    TRUE);
+    END;
+
+    PROCEDURE SiguienteDiaLocation@1000000011(FechaInicial@1000000000 : Date;NumeroDias@1000000001 : Integer;CodAlamacen@1000000002 : Code[20]) ReturnDate : Date;
+    BEGIN
+      ReturnDate := CalendarManagement.CalcDateBOC( FORMAT(NumeroDias)+'D',
+                                                    FechaInicial,
+                                                    CustomizedCalendarChange."Source Type"::Location,
+                                                    CodAlamacen,
+                                                    '',
+                                                    CustomizedCalendarChange."Source Type"::Location,//Esta parte es por si no encuentra la primera parte busque la segunda se podria poner company que siemrep tendria que estas configurado
+                                                    CodAlamacen,
+                                                    '',
+                                                    TRUE);
+    END;
+
+    PROCEDURE SiguienteDiaService@1000000012(FechaInicial@1000000000 : Date;NumeroDias@1000000001 : Integer) ReturnDate : Date;
+    BEGIN
+      ReturnDate := CalendarManagement.CalcDateBOC( FORMAT(NumeroDias)+'D',
+                                                    FechaInicial,
+                                                    CustomizedCalendarChange."Source Type"::Service,
+                                                    '',
+                                                    '',
+                                                    CustomizedCalendarChange."Source Type"::Service,//Esta parte es por si no encuentra la primera parte busque la segunda se podria poner company que siemrep tendria que estas configurado
+                                                    '',
+                                                    '',
+                                                    TRUE);
+    END;
+
+    BEGIN
+    {
+      Calendarios Estandar: Se ha de ir a los calendarios y modificarlos para que no esten los fines de semana y festivos
+      -Company: Informacion empresa/Envios/Codigo calendario base
+      -Customer: Ficha cliente/envio/Codigo calendario base
+      -Vendor: Ficha proveedor/recepcion/Codigo calendario base
+      -Shipping Agent: Llista de transportistas/Boton servicios transportista/llista Servicios transportista/Codigo calendario base
+      -Location: Ficha almacen/Almacen/Codigo calendario base
+      -Service: Configuraci�n del servicio/General/Codigo calendario base
+    }
+    END.
+  }
+}
+

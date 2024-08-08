@@ -20,5 +20,17 @@ codeunit 50100 "Setup Extension Mgt"
                                                  Enum::"Video Category"::Extensions,//categoria del video
                                                  'https://www.aesva.es'); // URL de ayuda 
 
+        if not GuidedExperience.Exists(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Assited Setup") then
+            GuidedExperience.InsertAssistedSetup(TitleLbl, //titulo de la aplicación
+                                                 TitleLbl, //titulo corto 
+                                                 DescriptionLbl, //Descripción
+                                                 2, //cuantos minitos se espera que dure la configuración
+                                                 ObjectType::Page, //Tipo de objeto que se espera abrir
+                                                 Page::"Assited Setup", //Id del objeto a abrir
+                                                 Enum::"Assisted Setup Group"::Extensions, //El grupo del asistente 
+                                                 '', //aquí pondremos la URL del video si la hubiera
+                                                 Enum::"Video Category"::Uncategorized,//categoria del video
+                                                 'https://www.aesva.es'); // URL de ayuda 
+
     end;
 }

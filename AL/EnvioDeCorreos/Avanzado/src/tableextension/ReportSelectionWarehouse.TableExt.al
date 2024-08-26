@@ -9,6 +9,8 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
 {
     fields
     {
+        //crs-al disable
+        // le quito las funciones de la extension de CRS de Waldo para que no modifique el nombre y funcione todo correctamente, ya que depende del nombre que todo valla bien.
         field(60000; "Use for Email Subject"; Boolean)
         {
             Caption = 'Use for Email Subject', Comment = 'ESP="Uso para el asunto del correo electrónico"';
@@ -273,6 +275,12 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
                     "Use for Email Attachment" := true;
             end;
         }
+        field(60033; "Mail Only Option"; Boolean)
+        {
+            Caption = 'Mail Only Option', Comment = 'ESP="Opción solo para correos"';
+            DataClassification = CustomerContent;
+        }
+        //crs-al enable
 
         #endregion
     }

@@ -8,6 +8,11 @@ pageextension 60026 "ReportSelectionWarehouse" extends "Report Selection - Wareh
     {
         addlast("Control1")
         {
+            field("Mail Only Option"; Rec."Mail Only Option")
+            {
+                ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
+                ApplicationArea = All;
+            }
             field("Use for Email Subject"; Rec."Use for Email Subject")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';

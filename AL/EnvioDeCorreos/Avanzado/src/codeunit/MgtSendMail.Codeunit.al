@@ -152,8 +152,12 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.SetRange(Usage, ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Subject", true);
 
-        if LanguageCode <> '' then
+        if LanguageCode <> '' then begin
             ReportSelections.SetRange("Language Code", LanguageCode);
+
+            if ReportSelections.IsEmpty() then
+                ReportSelections.SetRange("Language Code");
+        end;
 
         if ReportSelections.FindFirst() then begin
             Clear(TempBlob);
@@ -216,8 +220,12 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.SetRange(Usage, ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Body", true);
 
-        if LanguageCode <> '' then
+        if LanguageCode <> '' then begin
             ReportSelections.SetRange("Language Code", LanguageCode);
+
+            if ReportSelections.IsEmpty() then
+                ReportSelections.SetRange("Language Code");
+        end;
 
         if ReportSelections.FindFirst() then begin
             Clear(TempBlob);
@@ -271,7 +279,6 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.SetRange("Use for Email Attachment", true);
         if LanguageCode <> '' then begin
             ReportSelections.SetRange("Language Code", LanguageCode);
-
 
             if ReportSelections.IsEmpty() then
                 ReportSelections.SetRange("Language Code");
@@ -327,8 +334,12 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionUsage);
         ReportSelectionWarehouse.SetRange("Use for Email Subject", true);
 
-        if LanguageCode <> '' then
+        if LanguageCode <> '' then begin
             ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
+
+            if ReportSelectionWarehouse.IsEmpty() then
+                ReportSelectionWarehouse.SetRange("Language Code");
+        end;
 
         if ReportSelectionWarehouse.FindFirst() then begin
             Clear(TempBlob);
@@ -390,8 +401,12 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelectionWarehouse.Reset();
         ReportSelectionWarehouse.SetRange(Usage, SelectionWarehouseUsage);
 
-        if LanguageCode <> '' then
+        if LanguageCode <> '' then begin
             ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
+
+            if ReportSelectionWarehouse.IsEmpty() then
+                ReportSelectionWarehouse.SetRange("Language Code");
+        end;
 
         if ReportSelectionWarehouse.FindFirst() then begin
             Clear(TempBlob);
@@ -730,12 +745,11 @@ codeunit 60007 "Mgt. Send Mail"
         Job: Record Job;
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         DocumentVariant: Variant;
-
     begin
         Clear(ReturnValue);
 
-        if RecordRef.Count = 1 then
-            RecordRef.FindFirst()
+        if DocumentRecordRef.Count = 1 then
+            DocumentRecordRef.FindFirst()
         else
             exit;
 
@@ -816,12 +830,57 @@ codeunit 60007 "Mgt. Send Mail"
     var
         SEPAMandateTxt: Label 'SEPA Mandate', Comment = 'ESP="Mandato SEPA"';
     begin
+        //evento para ponerle texto a los que no estan configurados
         case DocumentRecordRef.Number of
             Database::"SEPA Direct Debit Mandate":
                 DocumentTypeText := SEPAMandateTxt;
 
         end;
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint, '', false, false)]
+    local procedure T77_OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; var WithCheck: Boolean; ReportUsage: Integer; TableNo: Integer)
+    begin
+        //evento para que no imprima los que estan marcados
+        TempReportSelections.SetRange("Mail Only Option", false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnSaveAsDocumentAttachmentOnBeforeCanSaveReportAsPDF, '', false, false)]
+    local procedure T77_OnSaveAsDocumentAttachmentOnBeforeCanSaveReportAsPDF(var TempAttachReportSelections: Record "Report Selections" temporary; RecRef: RecordRef; DocumentNo: Code[20]; AccountNo: Code[20]; NumberOfReportsAttached: Integer)
+    begin
+        //evento para que no imprima los que estan marcados
+        TempAttachReportSelections.SetRange("Mail Only Option", false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnSendEmailDirectlyOnBeforeSendFiles, '', false, false)]
+    local procedure T77_OnSendEmailDirectlyOnBeforeSendFiles(ReportUsage: Integer; RecordVariant: Variant; var DefaultEmailAddress: Text[250]; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
+    begin
+        //evento para que no imprima los que estan marcados
+        TempAttachReportSelections.SetRange("Mail Only Option", false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnSendToDiskForCustOnBeforeFindReportUsage, '', false, false)]
+    local procedure T77_OnSendToDiskForCustOnBeforeFindReportUsage(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelectionsPart: Record "Report Selections"; var IsHandled: Boolean)
+    begin
+        //evento para que no imprima los que estan marcados
+        ReportSelectionsOrg.SetRange("Mail Only Option", false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnSendToZipForCustOnBeforeFindReportUsageForCust, '', false, false)]
+    local procedure T77_OnSendToZipForCustOnBeforeFindReportUsageForCust(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelectionsPart: Record "Report Selections"; var IsHandled: Boolean)
+    begin
+        //evento para que no imprima los que estan marcados
+        ReportSelectionsOrg.SetRange("Mail Only Option", false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnFindReportSelections, '', false, false)]
+    local procedure T77_OnFindReportSelections(var FilterReportSelections: Record "Report Selections"; var IsHandled: Boolean; var ReturnReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer)
+    begin
+        //evento para que no imprima los que estan marcados
+        FilterReportSelections.SetRange("Mail Only Option", false);
+    end;
+
+
     #endregion
 
     var

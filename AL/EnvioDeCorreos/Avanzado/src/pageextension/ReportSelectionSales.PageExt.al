@@ -25,6 +25,11 @@ pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
         }
         addbefore("Use for Email Body")
         {
+            field("Mail Only Option"; Rec."Mail Only Option")
+            {
+                ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
+                ApplicationArea = All;
+            }
             field("Use for Email Subject"; Rec."Use for Email Subject")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';

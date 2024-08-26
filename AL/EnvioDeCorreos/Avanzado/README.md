@@ -12,7 +12,7 @@ Se requiere el desarrollo de un sistema de envío de correos personalizado que p
 
 Es necesario configurar una cuenta de correo electrónico predeterminada, la cual debe ser una cuenta de la empresa para que funcione correctamente.
 
-![Imagen 1](AL/EnvioDeCorreos/Avanzado/img/image_9.png)
+![Imagen 1](AL/EnvioDeCorreos/img/image_9.png)
 
 He añadido dos enlaces a tutoriales para configurar cuentas en Business Central:
 

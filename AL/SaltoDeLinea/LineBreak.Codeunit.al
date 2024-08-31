@@ -1,18 +1,31 @@
 codeunit 50000 "Line Break"
 {
-
     trigger OnRun()
     begin
         Message('Texto inicial: ' + NewLineBreak() + 'Texto final');
     end;
 
-    procedure NewLineBreak() ExitValue: Text
+    #region function salto de linea
+    procedure LineBreak(QtyLineBreak: Integer) ReturnValue: Text
     var
-        Char13: Char;
-        Char10: Char;
+        TypeHelper: Codeunit "Type Helper";
+        i: Integer;
     begin
-        Char13 := 13;
-        Char10 := 10;
-        ExitValue := FORMAT(Char13) + FORMAT(Char10);
+        ReturnValue := '';
+
+        for i := 1 to QtyLineBreak do
+            ReturnValue += TypeHelper.CRLFSeparator();
     end;
+
+    procedure SaltoDeLinea() ReturnValue: Text
+    var
+        CR: Char;
+        LF: Char;
+    begin
+        CR := 13;
+        LF := 10;
+        ReturnValue := FORMAT(CR) + FORMAT(LF);
+    end;
+
+    #endregion
 }

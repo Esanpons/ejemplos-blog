@@ -586,15 +586,6 @@ codeunit 60007 "Mgt. Send Mail"
     end;
     #endregion
 
-    #region Eventos
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnBeforeCheckEmailBodyUsage, '', false, false)]
-    local procedure T77_OnBeforeCheckEmailBodyUsage(var IsHandled: Boolean)
-    begin
-        //este evento lo ponemos para omitir el error de varios checks para el cuerpo
-        IsHandled := true;
-    end;
-    #endregion
-
     #region FUNCIONES LOCALES
     local procedure ChangeGlobalLanguaje(NewLanguageCode: Code[10])
     var
@@ -838,6 +829,13 @@ codeunit 60007 "Mgt. Send Mail"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnBeforeCheckEmailBodyUsage, '', false, false)]
+    local procedure T77_OnBeforeCheckEmailBodyUsage(var IsHandled: Boolean)
+    begin
+        //este evento lo ponemos para omitir el error de varios checks para el cuerpo
+        IsHandled := true;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint, '', false, false)]
     local procedure T77_OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; var WithCheck: Boolean; ReportUsage: Integer; TableNo: Integer)
     begin
@@ -879,8 +877,6 @@ codeunit 60007 "Mgt. Send Mail"
         //evento para que no imprima los que estan marcados
         FilterReportSelections.SetRange("Mail Only Option", false);
     end;
-
-
     #endregion
 
     var

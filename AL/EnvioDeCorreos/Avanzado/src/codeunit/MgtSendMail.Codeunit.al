@@ -124,7 +124,10 @@ codeunit 60007 "Mgt. Send Mail"
         SendDirectly := IsSendDirectly;
 
         //crear el correo base
-        EmailMessage.Create(ToRecipients, SubjectTxt, BodyText, true);
+        if SkipHtmlFormatting then
+            EmailMessage.Create(ToRecipients, SubjectTxt, BodyText)
+        else
+            EmailMessage.Create(ToRecipients, SubjectTxt, BodyText, true);
     end;
 
     procedure CreateFileName() ReturnValue: Text[250]
@@ -595,6 +598,11 @@ codeunit 60007 "Mgt. Send Mail"
     begin
         SendSeparateAttachments := true;
     end;
+
+    procedure SetSkipHtmlFormatting()
+    begin
+        SkipHtmlFormatting := true;
+    end;
     #endregion
 
     #region FUNCIONES LOCALES
@@ -913,6 +921,7 @@ codeunit 60007 "Mgt. Send Mail"
         HideAddSubject: Boolean;
         IsModifyAttachmentFormat: Boolean;
         IsModifyGetTable: Boolean;
+        SkipHtmlFormatting: Boolean;
         LanguageCode: Code[10];
         InitLanguageID: Integer;
         AttachmentFormat: ReportFormat;

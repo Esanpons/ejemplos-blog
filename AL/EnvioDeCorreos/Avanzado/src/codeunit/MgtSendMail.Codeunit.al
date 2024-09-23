@@ -15,6 +15,17 @@ using System.Reflection;
 codeunit 60007 "Mgt. Send Mail"
 {
     #region FUNCIONES SEND
+    procedure SendSimpleEmail(NewToRecipients: Text; IsSendDirectly: Boolean; Body: Text; Subject: Text) EmailAction: Enum "Email Action";
+    begin
+        Clear(EmailMessage);
+
+        SetToRecipients(NewToRecipients);
+        CreateMail(IsSendDirectly);
+        SetBody(Body);
+        SetSubject(Subject);
+        EmailAction := SendEmail();
+    end;
+
     procedure SendSimpleEmail(RecVariant: Variant; NewToRecipients: Text; IsSendDirectly: Boolean; Body: Text; Subject: Text) EmailAction: Enum "Email Action";
     begin
         Clear(EmailMessage);

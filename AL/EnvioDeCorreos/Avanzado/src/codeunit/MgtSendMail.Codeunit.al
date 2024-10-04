@@ -277,6 +277,7 @@ codeunit 60007 "Mgt. Send Mail"
     var
         ReportSelections: Record "Report Selections";
         VersionFileName: Integer;
+        l_FileName: Text[250];
     begin
         if HideAddAttachment then
             exit;
@@ -311,12 +312,12 @@ codeunit 60007 "Mgt. Send Mail"
                 if VersionFileName > 1 then
                     FileName += '_' + Format(VersionFileName);
 
-                FileName += '.' + format(ContentTypeAddAttachment);
+                l_FileName := CopyStr(FileName + '.' + format(ContentTypeAddAttachment), 1, 250);
 
                 TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
                 REPORT.SaveAs(ReportSelections."Report ID", '', AttachmentFormat, OutStream, RecordRef);
                 TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-                EmailMessage.AddAttachment(FileName, ContentTypeAddAttachment, InStream);
+                EmailMessage.AddAttachment(l_FileName, ContentTypeAddAttachment, InStream);
             until ReportSelections.Next() = 0;
 
 
@@ -459,6 +460,7 @@ codeunit 60007 "Mgt. Send Mail"
     var
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
         VersionFileName: Integer;
+        l_FileName: Text[250];
     begin
         if HideAddAttachment then
             exit;
@@ -495,10 +497,12 @@ codeunit 60007 "Mgt. Send Mail"
 
                 FileName += '.' + format(ContentTypeAddAttachment);
 
+                l_FileName := CopyStr(FileName + '.' + format(ContentTypeAddAttachment), 1, 250);
+
                 TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
                 REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', AttachmentFormat, OutStream, RecordRef);
                 TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-                EmailMessage.AddAttachment(FileName, ContentTypeAddAttachment, InStream);
+                EmailMessage.AddAttachment(l_FileName, ContentTypeAddAttachment, InStream);
 
             until ReportSelectionWarehouse.Next() = 0;
 

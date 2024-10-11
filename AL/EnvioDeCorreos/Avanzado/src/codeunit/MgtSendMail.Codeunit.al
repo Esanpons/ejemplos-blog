@@ -165,13 +165,10 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.Reset();
         ReportSelections.SetRange(Usage, ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Subject", true);
+        ReportSelections.SetRange("Language Code", LanguageCode);
 
-        if LanguageCode <> '' then begin
-            ReportSelections.SetRange("Language Code", LanguageCode);
-
-            if ReportSelections.IsEmpty() then
-                ReportSelections.SetRange("Language Code");
-        end;
+        if ReportSelections.IsEmpty() then
+            ReportSelections.SetRange("Language Code");
 
         if ReportSelections.FindFirst() then begin
             Clear(TempBlob);
@@ -233,13 +230,10 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.Reset();
         ReportSelections.SetRange(Usage, ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Body", true);
+        ReportSelections.SetRange("Language Code", LanguageCode);
 
-        if LanguageCode <> '' then begin
-            ReportSelections.SetRange("Language Code", LanguageCode);
-
-            if ReportSelections.IsEmpty() then
-                ReportSelections.SetRange("Language Code");
-        end;
+        if ReportSelections.IsEmpty() then
+            ReportSelections.SetRange("Language Code");
 
         if ReportSelections.FindFirst() then begin
             Clear(TempBlob);
@@ -292,12 +286,10 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.Reset();
         ReportSelections.SetRange(Usage, ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Attachment", true);
-        if LanguageCode <> '' then begin
-            ReportSelections.SetRange("Language Code", LanguageCode);
+        ReportSelections.SetRange("Language Code", LanguageCode);
 
-            if ReportSelections.IsEmpty() then
-                ReportSelections.SetRange("Language Code");
-        end;
+        if ReportSelections.IsEmpty() then
+            ReportSelections.SetRange("Language Code");
 
         if ReportSelections.FindSet() then
             repeat
@@ -348,13 +340,10 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelectionWarehouse.Reset();
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionUsage);
         ReportSelectionWarehouse.SetRange("Use for Email Subject", true);
+        ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
 
-        if LanguageCode <> '' then begin
-            ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
-
-            if ReportSelectionWarehouse.IsEmpty() then
-                ReportSelectionWarehouse.SetRange("Language Code");
-        end;
+        if ReportSelectionWarehouse.IsEmpty() then
+            ReportSelectionWarehouse.SetRange("Language Code");
 
         if ReportSelectionWarehouse.FindFirst() then begin
             Clear(TempBlob);
@@ -415,13 +404,10 @@ codeunit 60007 "Mgt. Send Mail"
 
         ReportSelectionWarehouse.Reset();
         ReportSelectionWarehouse.SetRange(Usage, SelectionWarehouseUsage);
+        ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
 
-        if LanguageCode <> '' then begin
-            ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
-
-            if ReportSelectionWarehouse.IsEmpty() then
-                ReportSelectionWarehouse.SetRange("Language Code");
-        end;
+        if ReportSelectionWarehouse.IsEmpty() then
+            ReportSelectionWarehouse.SetRange("Language Code");
 
         if ReportSelectionWarehouse.FindFirst() then begin
             Clear(TempBlob);
@@ -474,13 +460,10 @@ codeunit 60007 "Mgt. Send Mail"
 
         ReportSelectionWarehouse.Reset();
         ReportSelectionWarehouse.SetRange(Usage, SelectionWarehouseUsage);
+        ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
 
-        if LanguageCode <> '' then begin
-            ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
-
-            if ReportSelectionWarehouse.IsEmpty() then
-                ReportSelectionWarehouse.SetRange("Language Code");
-        end;
+        if ReportSelectionWarehouse.IsEmpty() then
+            ReportSelectionWarehouse.SetRange("Language Code");
 
         if ReportSelectionWarehouse.FindSet() then
             repeat

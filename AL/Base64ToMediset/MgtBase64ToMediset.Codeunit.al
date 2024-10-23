@@ -38,5 +38,19 @@ codeunit 50000 "Base64ToMediset"
         Item.Modify();
     end;
 
+    local procedure GetPictureCompanyInformationBase64() ReturnValue: Text
+    var
+        CompanyInformation: Record "Company Information";
+        Base64Convert: Codeunit "Base64 Convert";
+        InStream: InStream;
+    begin
+        Clear(InStream);
+        Clear(Base64Convert);
+
+        CompanyInformation.GetRecordOnce();
+        CompanyInformation.CalcFields(Picture);
+        CompanyInformation.Picture.CreateInStream(InStream);
+        ReturnValue := Base64Convert.ToBase64(InStream);
+    end;
 
 }

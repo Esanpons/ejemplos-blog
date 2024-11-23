@@ -1,0 +1,38 @@
+{
+    "id": "8d155e7b-99b2-45be-b0b4-46ddb8e06c64",
+    "publisher": "Esteve Sanpons",
+    "name": "Utils",
+    "brief": "Utils",
+    "description": "Utils",
+    "privacyStatement": "https://www.aesva.es/",
+    "EULA": "https://www.aesva.es/",
+    "help": "https://www.aesva.es/",
+    "url": "https://www.aesva.es/",
+    "contextSensitiveHelpUrl": "https://www.aesva.es/",
+    "logo": "",
+    "dependencies": [],
+    "screenshots": [],
+    "resourceExposurePolicy": {
+        "includeSourceInSymbolFile": false,
+        "allowDebugging": true,
+        "allowDownloadingSource": false
+    },
+    "supportedLocales": [
+        "en-US",
+        "es-ES"
+    ],
+    "features": [
+        "NoImplicitWith",
+        "TranslationFile"
+    ],
+    "idRanges": [
+        {
+            "from": 50000,
+            "to": 99000
+        }
+    ],
+    "version": "21.0.0.1",
+    "application": "21.0.0.0",
+    "platform": "1.0.0.0",
+    "runtime": "9.0"
+}

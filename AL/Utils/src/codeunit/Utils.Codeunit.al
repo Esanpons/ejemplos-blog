@@ -329,8 +329,6 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
-
-
     #region Convert Escape Unicode
     procedure ConvertEscapeUnicode(TextToConvert: Text) ReturnValue: Text
     var
@@ -462,6 +460,25 @@ codeunit 59001 "Utils"
         AnsiStr := AnsiStr + '¿À' + FORMAT(CharVar[30]) + FORMAT(CharVar[31]) + FORMAT(CharVar[32]) + '_ ';
     end;
 
+    #endregion
+
+    #region Control de Errores
+    procedure ActionError(MessageErr: Text; PageNo: Integer; FieldNo: Integer; RecordId: RecordId; CaptionButton: Text)
+    var
+        ErrorInfo: ErrorInfo;
+    begin
+        Clear(ErrorInfo);
+        ErrorInfo.Message(MessageErr);
+        ErrorInfo.PageNo := PageNo;
+        ErrorInfo.RecordId := RecordId;
+        if FieldNo <> 0 then
+            ErrorInfo.FieldNo := FieldNo;
+        if CaptionButton <> '' then
+            ErrorInfo.AddNavigationAction(CaptionButton);
+
+        if GuiAllowed() then
+            Error(ErrorInfo);
+    end;
     #endregion
 
     #region Varios

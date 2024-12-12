@@ -8,6 +8,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
 using System.Azure.Identity;
 using System.Environment;
+using Microsoft.Foundation.Attachment;
 using System.Utilities;
 using System.Reflection;
 using System.Environment.Configuration;

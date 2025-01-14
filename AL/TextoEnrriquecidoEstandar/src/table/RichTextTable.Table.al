@@ -37,10 +37,11 @@ table 50000 "RichTextTable"
         InStream: InStream;
         Result: Text;
     begin
-        if Rec."RichText".HasValue then begin
-            Rec."RichText".CreateInStream(InStream);
-            InStream.ReadText(Result);
-        end;
+        if not Rec."RichText".HasValue then
+            exit;
+
+        Rec."RichText".CreateInStream(InStream);
+        InStream.ReadText(Result);
         exit(Result);
     end;
 }

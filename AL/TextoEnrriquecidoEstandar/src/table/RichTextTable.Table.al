@@ -30,6 +30,7 @@ table 50000 "RichTextTable"
         Clear(Rec."RichText");
         Rec."RichText".CreateOutStream(OutStream);
         OutStream.WriteText(value);
+        Rec.Modify();
     end;
 
     procedure GetRichText(): Text
@@ -37,6 +38,7 @@ table 50000 "RichTextTable"
         InStream: InStream;
         Result: Text;
     begin
+        Rec.CalcFields("RichText");
         if not Rec."RichText".HasValue then
             exit;
 

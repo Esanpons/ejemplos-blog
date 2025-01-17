@@ -482,6 +482,54 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
+    #region RecordLink
+    procedure InsertNewNote(RecVariant: Variant; NoteText: Text)
+    var
+        RecordLink: Record "Record Link";
+        LinkManagement: Codeunit "Record Link Management";
+        RecordRef: RecordRef;
+    begin
+        Clear(RecordRef);
+        RecordRef.GetTable(RecVariant);
+
+        RecordLink.Init();
+        RecordLink."Record ID" := RecordRef.RecordId();
+        RecordLink.Company := CopyStr(CompanyName(), 1, 30);
+        RecordLink."User ID" := CopyStr(UserId(), 1, 132);
+        RecordLink.Created := CurrentDateTime();
+        RecordLink.Type := RecordLink.Type::Note;
+        RecordLink.Insert();
+
+        Clear(LinkManagement);
+        LinkManagement.WriteNote(RecordLink, NoteText);
+        RecordLink.Modify();
+    end;
+
+    procedure GetNote(RecordLink: Record "Record Link"): Text;
+    var
+        LinkManagement: Codeunit "Record Link Management";
+    begin
+        Clear(LinkManagement);
+        exit(LinkManagement.ReadNote(RecordLink));
+    end;
+
+    procedure RemoveLinks(RecVariant: Variant)
+    var
+        LinkManagement: Codeunit "Record Link Management";
+    begin
+        Clear(LinkManagement);
+        LinkManagement.RemoveLinks(RecVariant);
+    end;
+
+    procedure CopyLinks(FromRecVariant: Variant; ToRecVariant: Variant)
+    var
+        LinkManagement: Codeunit "Record Link Management";
+    begin
+        Clear(LinkManagement);
+        LinkManagement.CopyLinks(FromRecVariant, ToRecVariant);
+    end;
+    #endregion
+
     #region Varios
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var

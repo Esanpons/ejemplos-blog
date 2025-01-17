@@ -11,7 +11,7 @@ page 50000 "RichTextPage"
         {
             group(Group)
             {
-                field("RichText"; Rec.GetRichText())
+                field("RichText"; ValueText)
                 {
                     ApplicationArea = All;
                     ExtendedDatatype = RichContent;
@@ -22,4 +22,17 @@ page 50000 "RichTextPage"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        ValueText := Rec.GetRichText();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        Rec.SetRichText(ValueText);
+    end;
+
+    var
+        ValueText: Text;
 }

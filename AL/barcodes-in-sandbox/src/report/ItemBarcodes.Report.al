@@ -39,22 +39,16 @@ report 50001 "Item Barcodes"
 
             trigger OnAfterGetRecord()
             var
-                BarcodeSymbology: Enum "Barcode Symbology";
-                BarcodeFontProvider: Interface "Barcode Font Provider";
+                GenerateBarcode: Codeunit "Generate Barcode";
             begin
-                BarcodeFontProvider := Enum::"Barcode Font Provider"::IDAutomation1D;
-
                 //Code-39
-                BarcodeSymbology := Enum::"Barcode Symbology"::Code39;
-                Barcode39Txt := BarcodeFontProvider.EncodeFont(Items."No.", BarcodeSymbology);
+                Barcode39Txt := GenerateBarcode.GenerateCode39(Items."No.");
 
                 //Code-93
-                BarcodeSymbology := Enum::"Barcode Symbology"::Code93;
-                Barcode93Txt := BarcodeFontProvider.EncodeFont(Items."No.", BarcodeSymbology);
+                Barcode93Txt := GenerateBarcode.GenerateCode93(Items."No.");
 
                 //Code-128
-                BarcodeSymbology := Enum::"Barcode Symbology"::Code128;
-                Barcode128Txt := BarcodeFontProvider.EncodeFont(Items."No.", BarcodeSymbology);
+                Barcode128Txt := GenerateBarcode.GenerateCode128(Items."No.");
             end;
         }
     }

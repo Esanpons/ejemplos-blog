@@ -530,6 +530,24 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
+    #region conversion de fechas a UNIX
+    procedure ConvertUnixTimestampToDateTime(Timestamp: BigInteger) ReturnValue: DateTime
+    var
+        UnixTimestamp: Codeunit "Unix Timestamp";
+    begin
+        Clear(UnixTimestamp);
+        ReturnValue := UnixTimestamp.EvaluateTimestamp(Timestamp);
+    end;
+
+    procedure ConvertDateTimeToUnixTimestamp(DateTimeFrom: DateTime) ReturnValue: BigInteger;
+    var
+        UnixTimestamp: Codeunit "Unix Timestamp";
+    begin
+        Clear(UnixTimestamp);
+        ReturnValue := UnixTimestamp.CreateTimestampSeconds(DateTimeFrom);
+    end;
+    #endregion
+
     #region Varios
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var

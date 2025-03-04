@@ -165,7 +165,7 @@ codeunit 71002 "Mgt. Json"
     #endregion
 
 
-
+    #region Others
 
     // Procedimiento que da formato a un texto JSON.
     // Se lee el texto JSON, se recorre su estructura y se genera un nuevo texto formateado.
@@ -251,5 +251,58 @@ codeunit 71002 "Mgt. Json"
         FormattedJson := JsonTextReaderWriter.GetJSonAsText();
         exit(FormattedJson);
     end;
+
+
+    procedure FomatDecimal(Value: Decimal) ReturnValue: Decimal
+    var
+        ValueText1: Text;
+        ValueText2: Text;
+        ValueText3: Text;
+        ValueDec: Decimal;
+        Lenght: Integer;
+    begin
+        ReturnValue := Value;
+
+        ValueText1 := Format(Value);
+        if ValueText1 = '' then
+            exit;
+
+        ValueText1 := DelChr(ValueText1, '=', ',');
+        ValueText1 := DelChr(ValueText1, '=', '.');
+        Lenght := StrLen(ValueText1);
+
+        case Lenght of
+            0:
+                exit;
+            1:
+                begin
+                    ValueText2 := '0';
+                    ValueText3 := '0' + ValueText1;
+                end;
+            2:
+                begin
+                    ValueText2 := '0';
+                    ValueText3 := ValueText1;
+                end;
+            else begin
+                ValueText2 := CopyStr(ValueText1, 1, Lenght - 2);
+                ValueText3 := CopyStr(ValueText1, Lenght - 1, Lenght);
+            end;
+
+        end;
+
+        ValueText1 := ValueText2 + ',' + ValueText3;
+        if not Evaluate(ValueDec, ValueText1) then
+            exit;
+
+        ReturnValue := ValueDec;
+    end;
+
+
+
+    #endregion
+
+
+
 
 }

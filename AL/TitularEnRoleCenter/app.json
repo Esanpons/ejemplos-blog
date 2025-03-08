@@ -1,0 +1,38 @@
+{
+    "id": "c15851d7-71e2-48c5-b2b5-36e8d87ac18c",
+    "publisher": "Esteve Sanpons",
+    "name": "Titular En Role Center",
+    "brief": "Titular En Role Center",
+    "description": "Es el banner que sale al principio de un Role Center donde se pueden añadir varias cosas",
+    "privacyStatement": "https://www.aesva.es/",
+    "EULA": "https://www.aesva.es/",
+    "help": "https://www.aesva.es/",
+    "url": "https://www.aesva.es/",
+    "contextSensitiveHelpUrl": "https://www.aesva.es/",
+    "logo": "",
+    "dependencies": [],
+    "screenshots": [],
+    "resourceExposurePolicy": {
+        "includeSourceInSymbolFile": false,
+        "allowDebugging": true,
+        "allowDownloadingSource": false
+    },
+    "supportedLocales": [
+        "en-US",
+        "es-ES"
+    ],
+    "features": [
+        "NoImplicitWith",
+        "TranslationFile"
+    ],
+    "idRanges": [
+        {
+            "from": 50000,
+            "to": 99000
+        }
+    ],
+    "version": "21.0.0.1",
+    "application": "21.0.0.0",
+    "platform": "1.0.0.0",
+    "runtime": "9.0"
+}

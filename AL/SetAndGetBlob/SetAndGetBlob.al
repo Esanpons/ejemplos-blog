@@ -1,10 +1,9 @@
-table 58001 "SetAndGetBlob"
+tableextension 58001 "SetAndGetBlob" extends "Customer"
 {
-
     fields
     {
 
-        field(40; "Json Recived"; Blob)
+        field(58001; "Json Recived"; Blob)
         {
             Caption = 'Json', Comment = 'ESP="Json"';
             DataClassification = CustomerContent;

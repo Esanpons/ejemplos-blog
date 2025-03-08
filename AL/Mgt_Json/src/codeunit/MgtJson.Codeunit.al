@@ -47,12 +47,22 @@ codeunit 71002 "Mgt. Json"
 
     procedure GetValueDecimal(Json: Text; Tag: Text) ReturnValue: Decimal;
     var
-        ValueText: Text;
+        JsonObject: JsonObject;
+        JsonToken: JsonToken;
+        JsonValue: JsonValue;
     begin
-        ValueText := this.GetValueText(Json, Tag);
-        if ValueText = '' then
+        Clear(ReturnValue);
+        if not JsonObject.ReadFrom(Json) then
             exit;
-        Evaluate(ReturnValue, ValueText);
+
+        if not JsonObject.Get(tag, JsonToken) then
+            exit;
+
+        if not JsonToken.IsValue() then
+            exit;
+
+        JsonValue := JsonToken.AsValue();
+        ReturnValue := JsonValue.AsDecimal();
     end;
 
     procedure GetValueDateTime(Json: JsonObject; Tag: Text) ReturnValue: DateTime;

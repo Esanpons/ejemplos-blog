@@ -548,6 +548,58 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
+
+    #region funciones con variables Time
+    procedure RoundTimeToNearestMinutes(InputTime: Time; MinutesRound: Integer) ReturnValue: Time
+    var
+        TotalMinutes: Integer;
+        Remainder: Integer;
+        RoundedMinutes: Integer;
+        Time0: Time;
+    begin
+        Time0 := 000000T;
+        ReturnValue := InputTime;
+        if InputTime = Time0 then
+            exit;
+
+        // Convertir de Time a minutos desde la medianoche usando Duration
+        TotalMinutes := (InputTime - Time0) div (60 * 1000);
+
+        // Calcular el residuo al dividir por MinutosRound
+        Remainder := TotalMinutes mod MinutesRound;
+
+        // Redondear al múltiplo más cercano de MinutosRound
+        if Remainder < (MinutesRound / 2) then
+            RoundedMinutes := TotalMinutes - Remainder
+        else
+            RoundedMinutes := TotalMinutes + (MinutesRound - Remainder);
+
+        // Convertir minutos de vuelta a Time sumando desde 00:00:00 (0T)
+        ReturnValue := Time0 + (RoundedMinutes * 60 * 1000);
+    end;
+
+    procedure SubtractTwoTimes(Time1: Time; Time2: Time) ReturnValue: Time
+    var
+        ValueTime: Time;
+        ValueDecimal: Decimal;
+    begin
+        ValueTime := 000000T;
+        ValueDecimal := Time2 - Time1;
+
+        // lo convierto a segundos
+        ValueDecimal := ValueDecimal / 1000;
+        ValueTime := ValueTime + (ValueDecimal mod 60) * 1000;
+
+        // lo convierto a minutos
+        ValueDecimal := ValueDecimal div 60;
+        ValueTime := ValueTime + (ValueDecimal mod 60) * 1000 * 60;
+
+        // lo convierto a horas
+        ValueDecimal := ValueDecimal div 60;
+        ReturnValue := ValueTime + (ValueDecimal mod 60) * 1000 * 60 * 60;
+    end;
+    #endregion
+
     #region Varios
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var

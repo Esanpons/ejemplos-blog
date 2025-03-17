@@ -1,5 +1,8 @@
 codeunit 71002 "Mgt. Json"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
 
     #region GetValue Text
     procedure GetValueText(Json: JsonObject; Tag: Text) ReturnValue: Text;
@@ -143,6 +146,14 @@ codeunit 71002 "Mgt. Json"
         ReturnValue.ReadFrom(ValueText);
     end;
 
+    procedure GetValueFromJsonArray(Json: JsonArray; Index: Integer) ReturnValue: Text;
+    var
+        ValueText: Text;
+    begin
+        Json.WriteTo(ValueText);
+        ReturnValue := this.GetValueFromJsonArray(ValueText, Index);
+    end;
+
     procedure GetValueFromJsonArray(Json: Text; Index: Integer) ReturnValue: Text;
     var
         JSONManagement: Codeunit "JSON Management";
@@ -150,6 +161,22 @@ codeunit 71002 "Mgt. Json"
         Clear(JSONManagement);
         JSONManagement.InitializeCollection(Json);
         JSONManagement.GetObjectFromCollectionByIndex(ReturnValue, Index);
+    end;
+
+    procedure GetJsonObjectFromJsonArray(Json: JsonArray; Index: Integer) ReturnValue: JsonObject;
+    var
+        ValueText: Text;
+    begin
+        Json.WriteTo(ValueText);
+        ReturnValue := this.GetJsonObjectFromJsonArray(ValueText, Index);
+    end;
+
+    procedure GetJsonObjectFromJsonArray(Json: Text; Index: Integer) ReturnValue: JsonObject;
+    var
+        ValueText: Text;
+    begin
+        ValueText := this.GetValueFromJsonArray(Json, Index);
+        ReturnValue.ReadFrom(ValueText);
     end;
 
     #endregion
@@ -172,10 +199,6 @@ codeunit 71002 "Mgt. Json"
         if ValueText <> '' then
             ReturnValue := true;
     end;
-    #endregion
-
-
-    #region Others
 
     // Procedimiento que da formato a un texto JSON.
     // Se lee el texto JSON, se recorre su estructura y se genera un nuevo texto formateado.

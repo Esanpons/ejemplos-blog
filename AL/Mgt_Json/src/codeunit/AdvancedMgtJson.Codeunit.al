@@ -69,7 +69,7 @@ codeunit 50101 "Advanced Mgt. Json"
         exit(RecVariant);
     end;
 
-    local procedure AssignValueToFieldRef(var FieldRefe: FieldRef; JsonValueKey: JsonValue)
+    local procedure AssignValueToFieldRef(var FieldRefe: FieldRef; JsonKeyValue: JsonValue)
     var
         Text001Lbl: Label '%1 is not a supported field type', comment = 'ESP="%1 no es un tipo de campo admitido"';
     begin

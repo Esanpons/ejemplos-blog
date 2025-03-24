@@ -34,6 +34,20 @@ pageextension 50100 "Extension Customer" extends "Customer List"
                     MgtDownloadUpload.Download();
                 end;
             }
+
+            fileuploadaction(UploadMultiple)
+            {
+                ApplicationArea = All;
+                Caption = 'Upload Multiple', Comment = 'ESP="Carga Multiple"';
+                ToolTip = 'Upload Multiple', Comment = 'ESP="Carga Multiple"';
+                Image = Import;
+                AllowMultipleFiles = true;
+
+                trigger OnAction(files: List of [FileUpload])
+                begin
+                    MgtDownloadUpload.UploadMultipleFilesManual(files);
+                end;
+            }
         }
     }
 

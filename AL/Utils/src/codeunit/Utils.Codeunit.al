@@ -36,7 +36,7 @@ codeunit 59001 "Utils"
     var
         RecordRefe: RecordRef;
     begin
-        RecordIsTemporary(RecVariant);
+        this.RecordIsTemporary(RecVariant);
         RecordRefe.GetTable(RecVariant);
         RecordRefe.Reset();
         RecordRefe.DeleteAll();
@@ -77,10 +77,10 @@ codeunit 59001 "Utils"
         if not GuiAllowed then
             exit;
 
-        MyNext := 0;
-        MaxCount := NewMaxCount;
-        ValueText := StrSubstNo(Text001Lbl, MaxCount) + Text002Lbl;
-        MyDialog.Open(ValueText, MyNext);
+        this.MyNext := 0;
+        this.MaxCount := NewMaxCount;
+        ValueText := StrSubstNo(Text001Lbl, this.MaxCount) + Text002Lbl;
+        this.MyDialog.Open(ValueText, this.MyNext);
     end;
 
     procedure ProcessDialogUpdate()
@@ -88,8 +88,8 @@ codeunit 59001 "Utils"
         if not GuiAllowed then
             exit;
 
-        MyNext := MyNext + 1;
-        MyDialog.Update();
+        this.MyNext := this.MyNext + 1;
+        this.MyDialog.Update();
     end;
 
     procedure ProcessDialogClose()
@@ -97,7 +97,7 @@ codeunit 59001 "Utils"
         if not GuiAllowed then
             exit;
 
-        MyDialog.Close();
+        this.MyDialog.Close();
     end;
 
     procedure ConfirmContinue(NewTextConfirm: Text) ReturnValue: Boolean
@@ -117,10 +117,15 @@ codeunit 59001 "Utils"
     var
         Text001Msg: Label 'The process has been completed', Comment = 'ESP="Se ha completado el proceso"';
     begin
+        this.MessageCompleteProcess(Text001Msg);
+    end;
+
+    procedure MessageCompleteProcess(Msg: Text)
+    begin
         if not GuiAllowed then
             exit;
 
-        Message(Text001Msg);
+        Message(Msg);
     end;
     #endregion
 
@@ -411,61 +416,61 @@ codeunit 59001 "Utils"
     #region ANSI <-> ASCII converter
     procedure Ansi2Ascii(_Text: Text[250]): Text[250]
     begin
-        MakeVars();
-        exit(CONVERTSTR(_Text, AnsiStr, AsciiStr));
+        this.MakeVars();
+        exit(CONVERTSTR(_Text, this.AnsiStr, this.AsciiStr));
     end;
 
     procedure Ascii2Ansi(_Text: Text[250]): Text[250]
     begin
-        MakeVars();
-        exit(CONVERTSTR(_Text, AsciiStr, AnsiStr));
+        this.MakeVars();
+        exit(CONVERTSTR(_Text, this.AsciiStr, this.AnsiStr));
     end;
 
     procedure MakeVars()
     begin
-        AsciiStr := 'ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»¦¦¦¦¦ÁÂÀ©¦¦++¢¥++--+-+ãÃ++--¦-+';
-        AsciiStr := AsciiStr + '¤ðÐÊËÈiÍÎÏ++¦_¦Ì¯ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±=¾¶§÷¸°¨·¹³²¦ ';
-        CharVar[1] := 196;
-        CharVar[2] := 197;
-        CharVar[3] := 201;
-        CharVar[4] := 242;
-        CharVar[5] := 220;
-        CharVar[6] := 186;
-        CharVar[7] := 191;
-        CharVar[8] := 188;
-        CharVar[9] := 187;
-        CharVar[10] := 193;
-        CharVar[11] := 194;
-        CharVar[12] := 192;
-        CharVar[13] := 195;
-        CharVar[14] := 202;
-        CharVar[15] := 203;
-        CharVar[16] := 200;
-        CharVar[17] := 205;
-        CharVar[18] := 206;
-        CharVar[19] := 204;
-        CharVar[20] := 175;
-        CharVar[21] := 223;
-        CharVar[22] := 213;
-        CharVar[23] := 254;
-        CharVar[24] := 218;
-        CharVar[25] := 219;
-        CharVar[26] := 217;
-        CharVar[27] := 180;
-        CharVar[28] := 177;
-        CharVar[29] := 176;
-        CharVar[30] := 185;
-        CharVar[31] := 179;
-        CharVar[32] := 178;
-        AnsiStr := 'Ã³ÚÔõÓÕþÛÙÞ´¯ý' + FORMAT(CharVar[1]) + FORMAT(CharVar[2]) + FORMAT(CharVar[3]) + 'µã¶÷' + FORMAT(CharVar[4]);
-        AnsiStr := AnsiStr + '¹¨ Í' + FORMAT(CharVar[5]) + '°úÏÎâßÝ¾·±Ð¬' + FORMAT(CharVar[6]) + FORMAT(CharVar[7]);
-        AnsiStr := AnsiStr + '«¼¢' + FORMAT(CharVar[8]) + 'í½' + FORMAT(CharVar[9]) + '___ªª' + FORMAT(CharVar[10]) + FORMAT(CharVar[11]);
-        AnsiStr := AnsiStr + FORMAT(CharVar[12]) + '®ªª++óÑ++--+-+Ò' + FORMAT(CharVar[13]) + '++--ª-+ñ­ð';
-        AnsiStr := AnsiStr + FORMAT(CharVar[14]) + FORMAT(CharVar[15]) + FORMAT(CharVar[16]) + 'i' + FORMAT(CharVar[17]) + FORMAT(CharVar[18]);
-        AnsiStr := AnsiStr + '¤++__ª' + FORMAT(CharVar[19]) + FORMAT(CharVar[20]) + 'Ë' + FORMAT(CharVar[21]) + 'ÈÊ§';
-        AnsiStr := AnsiStr + FORMAT(CharVar[22]) + 'Á' + FORMAT(CharVar[23]) + 'Ì' + FORMAT(CharVar[24]) + FORMAT(CharVar[25]);
-        AnsiStr := AnsiStr + FORMAT(CharVar[26]) + '²¦»' + FORMAT(CharVar[27]) + '¡' + FORMAT(CharVar[28]) + '=¥Âº¸©' + FORMAT(CharVar[29]);
-        AnsiStr := AnsiStr + '¿À' + FORMAT(CharVar[30]) + FORMAT(CharVar[31]) + FORMAT(CharVar[32]) + '_ ';
+        this.AsciiStr := 'ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»¦¦¦¦¦ÁÂÀ©¦¦++¢¥++--+-+ãÃ++--¦-+';
+        this.AsciiStr := this.AsciiStr + '¤ðÐÊËÈiÍÎÏ++¦_¦Ì¯ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±=¾¶§÷¸°¨·¹³²¦ ';
+        this.CharVar[1] := 196;
+        this.CharVar[2] := 197;
+        this.CharVar[3] := 201;
+        this.CharVar[4] := 242;
+        this.CharVar[5] := 220;
+        this.CharVar[6] := 186;
+        this.CharVar[7] := 191;
+        this.CharVar[8] := 188;
+        this.CharVar[9] := 187;
+        this.CharVar[10] := 193;
+        this.CharVar[11] := 194;
+        this.CharVar[12] := 192;
+        this.CharVar[13] := 195;
+        this.CharVar[14] := 202;
+        this.CharVar[15] := 203;
+        this.CharVar[16] := 200;
+        this.CharVar[17] := 205;
+        this.CharVar[18] := 206;
+        this.CharVar[19] := 204;
+        this.CharVar[20] := 175;
+        this.CharVar[21] := 223;
+        this.CharVar[22] := 213;
+        this.CharVar[23] := 254;
+        this.CharVar[24] := 218;
+        this.CharVar[25] := 219;
+        this.CharVar[26] := 217;
+        this.CharVar[27] := 180;
+        this.CharVar[28] := 177;
+        this.CharVar[29] := 176;
+        this.CharVar[30] := 185;
+        this.CharVar[31] := 179;
+        this.CharVar[32] := 178;
+        this.AnsiStr := 'Ã³ÚÔõÓÕþÛÙÞ´¯ý' + FORMAT(this.CharVar[1]) + FORMAT(this.CharVar[2]) + FORMAT(this.CharVar[3]) + 'µã¶÷' + FORMAT(this.CharVar[4]);
+        this.AnsiStr := this.AnsiStr + '¹¨ Í' + FORMAT(this.CharVar[5]) + '°úÏÎâßÝ¾·±Ð¬' + FORMAT(this.CharVar[6]) + FORMAT(this.CharVar[7]);
+        this.AnsiStr := this.AnsiStr + '«¼¢' + FORMAT(this.CharVar[8]) + 'í½' + FORMAT(this.CharVar[9]) + '___ªª' + FORMAT(this.CharVar[10]) + FORMAT(this.CharVar[11]);
+        this.AnsiStr := this.AnsiStr + FORMAT(this.CharVar[12]) + '®ªª++óÑ++--+-+Ò' + FORMAT(this.CharVar[13]) + '++--ª-+ñ­ð';
+        this.AnsiStr := this.AnsiStr + FORMAT(this.CharVar[14]) + FORMAT(this.CharVar[15]) + FORMAT(this.CharVar[16]) + 'i' + FORMAT(this.CharVar[17]) + FORMAT(this.CharVar[18]);
+        this.AnsiStr := this.AnsiStr + '¤++__ª' + FORMAT(this.CharVar[19]) + FORMAT(this.CharVar[20]) + 'Ë' + FORMAT(this.CharVar[21]) + 'ÈÊ§';
+        this.AnsiStr := this.AnsiStr + FORMAT(this.CharVar[22]) + 'Á' + FORMAT(this.CharVar[23]) + 'Ì' + FORMAT(this.CharVar[24]) + FORMAT(this.CharVar[25]);
+        this.AnsiStr := this.AnsiStr + FORMAT(this.CharVar[26]) + '²¦»' + FORMAT(this.CharVar[27]) + '¡' + FORMAT(this.CharVar[28]) + '=¥Âº¸©' + FORMAT(this.CharVar[29]);
+        this.AnsiStr := this.AnsiStr + '¿À' + FORMAT(this.CharVar[30]) + FORMAT(this.CharVar[31]) + FORMAT(this.CharVar[32]) + '_ ';
     end;
 
     #endregion

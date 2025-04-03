@@ -16,6 +16,10 @@ using Microsoft.Foundation.Reporting;
 
 codeunit 59001 "Utils"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
     #region Functions Rec temporary
     procedure RecordIsTemporary(RecVariant: Variant)
     var
@@ -113,6 +117,9 @@ codeunit 59001 "Utils"
     var
         Text001Msg: Label 'The process has been completed', Comment = 'ESP="Se ha completado el proceso"';
     begin
+        if not GuiAllowed then
+            exit;
+
         Message(Text001Msg);
     end;
     #endregion

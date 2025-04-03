@@ -37,7 +37,9 @@ codeunit 71002 "Mgt. Json"
         ValueText := this.GetValueText(Json, Tag);
         if ValueText = '' then
             exit;
-        Evaluate(ReturnValue, ValueText);
+
+        if not Evaluate(ReturnValue, ValueText) then
+            Error(this.Text001Err, ValueText, Tag);
     end;
 
     procedure GetValueDecimal(Json: JsonObject; Tag: Text) ReturnValue: Decimal;
@@ -83,7 +85,9 @@ codeunit 71002 "Mgt. Json"
         ValueText := this.GetValueText(Json, Tag);
         if ValueText = '' then
             exit;
-        Evaluate(ReturnValue, ValueText);
+
+        if not Evaluate(ReturnValue, ValueText) then
+            Error(this.Text001Err, ValueText, Tag);
     end;
 
     procedure GetValueDate(Json: JsonObject; Tag: Text) ReturnValue: Date;
@@ -101,7 +105,29 @@ codeunit 71002 "Mgt. Json"
         ValueText := this.GetValueText(Json, Tag);
         if ValueText = '' then
             exit;
-        Evaluate(ReturnValue, ValueText);
+
+        if not Evaluate(ReturnValue, ValueText) then
+            Error(this.Text001Err, ValueText, Tag);
+    end;
+
+    procedure GetValueTime(Json: JsonObject; Tag: Text) ReturnValue: Time;
+    var
+        ValueText: Text;
+    begin
+        Json.WriteTo(ValueText);
+        ReturnValue := this.GetValueTime(ValueText, Tag);
+    end;
+
+    procedure GetValueTime(Json: Text; Tag: Text) ReturnValue: Time;
+    var
+        ValueText: Text;
+    begin
+        ValueText := this.GetValueText(Json, Tag);
+        if ValueText = '' then
+            exit;
+
+        if not Evaluate(ReturnValue, ValueText) then
+            Error(this.Text001Err, ValueText, Tag);
     end;
 
     procedure GetValueBoolean(Json: JsonObject; Tag: Text) ReturnValue: Boolean;
@@ -119,7 +145,9 @@ codeunit 71002 "Mgt. Json"
         ValueText := this.GetValueText(Json, Tag);
         if ValueText = '' then
             exit;
-        Evaluate(ReturnValue, ValueText);
+
+        if not Evaluate(ReturnValue, ValueText) then
+            Error(this.Text001Err, ValueText, Tag);
     end;
 
     procedure GetValueJsonObject(Json: JsonObject; Tag: Text) ReturnValue: JsonObject;
@@ -131,6 +159,14 @@ codeunit 71002 "Mgt. Json"
     end;
 
     procedure GetValueJsonObject(Json: Text; Tag: Text) ReturnValue: JsonObject;
+    var
+        ValueText: Text;
+    begin
+        ValueText := this.GetValueText(Json, Tag);
+        ReturnValue.ReadFrom(ValueText);
+    end;
+
+    procedure GetValueJsonArray(Json: JsonObject; Tag: Text) ReturnValue: JsonArray;
     var
         ValueText: Text;
     begin
@@ -181,6 +217,87 @@ codeunit 71002 "Mgt. Json"
 
     #endregion
 
+    #region SetValue
+    procedure SetValue(Json: JsonObject; Tag: Text; NewValueVariant: Variant) ReturnValue: JsonObject;
+    var
+        ValueText: Text;
+    begin
+        Json.WriteTo(ValueText);
+        ValueText := this.SetValue(ValueText, Tag, NewValueVariant);
+        Clear(ReturnValue);
+        ReturnValue.WriteTo(ValueText);
+    end;
+
+    procedure SetValue(JsonText: Text; Tag: Text; NewValueVariant: Variant) ReturnValue: Text
+    var
+        JsonObject: JsonObject;
+        JValue: JsonValue;
+    begin
+        JsonObject.ReadFrom(JsonText);
+        JValue := this.FieldRefToJsonValue(NewValueVariant);
+        JsonObject.Replace(tag, JValue);
+        JsonObject.WriteTo(ReturnValue);
+    end;
+
+
+    local procedure FieldRefToJsonValue(ValueVariant: Variant) JsonValue: JsonValue;
+    var
+        ValueDate: Date;
+        ValueDateTime: DateTime;
+        ValueTime: Time;
+        ValueInt: Integer;
+        ValueDec: Decimal;
+        ValueOption: Option;
+        ValueBoo: Boolean;
+    begin
+        Clear(JsonValue);
+
+        case true of
+            ValueVariant.IsCode(),
+            ValueVariant.IsText:
+                JsonValue.SetValue(Format(ValueVariant));
+            ValueVariant.IsInteger:
+                begin
+                    ValueInt := ValueVariant;
+                    JsonValue.SetValue(ValueInt);
+                end;
+            ValueVariant.IsDate:
+                begin
+                    ValueDate := ValueVariant;
+                    JsonValue.SetValue(ValueDate);
+                end;
+            ValueVariant.IsTime:
+                begin
+                    ValueTime := ValueVariant;
+                    JsonValue.SetValue(ValueTime);
+                end;
+            ValueVariant.IsDateTime:
+                begin
+                    ValueDateTime := ValueVariant;
+                    JsonValue.SetValue(ValueDateTime);
+                end;
+            ValueVariant.IsDecimal:
+                begin
+                    ValueDec := ValueVariant;
+                    JsonValue.SetValue(ValueDec);
+                end;
+            ValueVariant.IsOption:
+                begin
+                    ValueOption := ValueVariant;
+                    JsonValue.SetValue(ValueOption);
+                end;
+            ValueVariant.IsBoolean:
+                begin
+                    ValueBoo := ValueVariant;
+                    JsonValue.SetValue(ValueBoo);
+                end;
+            else
+                JsonValue.SetValue(Format(ValueVariant));
+        end;
+    end;
+
+
+    #endregion
     #region Others
     procedure HasValue(Json: JsonObject; Tag: Text) ReturnValue: Boolean;
     var
@@ -335,7 +452,8 @@ codeunit 71002 "Mgt. Json"
 
     #endregion
 
-
+    var
+        Text001Err: Label 'The value "%1" cannot be evaluated in the tag "%2"', Comment = 'ESP="El valor "%1", no puede ser evaluado en el Tag "%2""';
 
 
 }

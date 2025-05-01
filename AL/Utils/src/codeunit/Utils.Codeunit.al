@@ -177,6 +177,24 @@ codeunit 59001 "Utils"
 
     end;
 
+    procedure ConvertTextToTextBase64(ValueText: Text; TextEncoding: TextEncoding) ReturnValue: Text;
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        InStream: InStream;
+    begin
+        Clear(InStream);
+        Clear(TempBlob);
+        Clear(Base64Convert);
+        Clear(OutStream);
+
+        TempBlob.CreateOutStream(OutStream, TextEncoding);
+        OutStream.WriteText(ValueText);
+        TempBlob.CreateInStream(InStream, TextEncoding);
+        ReturnValue := Base64Convert.ToBase64(InStream);
+    end;
+
     procedure ConvertTextBase64ToTempBlob(TextBase64: Text) TempBlob: Codeunit "Temp Blob"
     var
         Base64Convert: Codeunit "Base64 Convert";

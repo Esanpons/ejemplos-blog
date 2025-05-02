@@ -160,10 +160,24 @@ codeunit 59001 "Utils"
         DocumentAttachment.Insert(true);
     end;
 
-    procedure ConvertTextBase64ToInStream(Base64Text: Text; var InStream: InStream)
+    procedure ConvertTextBase64ToInStream(Base64Text: Text; var InStream: InStream; TextEncoding: TextEncoding) TempBlob: Codeunit "Temp Blob";
     var
         Base64Convert: Codeunit "Base64 Convert";
-        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+    begin
+        Clear(InStream);
+        Clear(TempBlob);
+        Clear(Base64Convert);
+        Clear(OutStream);
+
+        TempBlob.CreateOutStream(OutStream, TextEncoding);
+        Base64Convert.FromBase64(Base64Text, OutStream);
+        TempBlob.CreateInStream(InStream, TextEncoding);
+    end;
+
+    procedure ConvertTextBase64ToInStream(Base64Text: Text; var InStream: InStream) TempBlob: Codeunit "Temp Blob";
+    var
+        Base64Convert: Codeunit "Base64 Convert";
         OutStream: OutStream;
     begin
         Clear(InStream);
@@ -174,7 +188,6 @@ codeunit 59001 "Utils"
         TempBlob.CreateOutStream(OutStream);
         Base64Convert.FromBase64(Base64Text, OutStream);
         TempBlob.CreateInStream(InStream);
-
     end;
 
     procedure ConvertTextToTextBase64(ValueText: Text; TextEncoding: TextEncoding) ReturnValue: Text;
@@ -192,6 +205,24 @@ codeunit 59001 "Utils"
         TempBlob.CreateOutStream(OutStream, TextEncoding);
         OutStream.WriteText(ValueText);
         TempBlob.CreateInStream(InStream, TextEncoding);
+        ReturnValue := Base64Convert.ToBase64(InStream);
+    end;
+
+    procedure ConvertTextToTextBase64(ValueText: Text) ReturnValue: Text;
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        InStream: InStream;
+    begin
+        Clear(InStream);
+        Clear(TempBlob);
+        Clear(Base64Convert);
+        Clear(OutStream);
+
+        TempBlob.CreateOutStream(OutStream);
+        OutStream.WriteText(ValueText);
+        TempBlob.CreateInStream(InStream);
         ReturnValue := Base64Convert.ToBase64(InStream);
     end;
 

@@ -609,7 +609,6 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
-
     #region funciones con variables Time
     procedure RoundTimeToNearestMinutes(InputTime: Time; MinutesRound: Integer) ReturnValue: Time
     var
@@ -779,6 +778,84 @@ codeunit 59001 "Utils"
                         ReturnValue := TempPriceListLine."Unit Price";
                 end;
             until TempPriceListLine.Next() = 0;
+    end;
+
+    procedure DeleteAllDataCompany()
+    var
+        AllObj: Record AllObj;
+    begin
+        AllObj.Reset();
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
+        AllObj.SetFilter("Object ID", '<2000000000');
+        this.ProcessDialogOpen(AllObj.Count());
+        if AllObj.FindSet() then
+            repeat
+                this.ProcessDialogUpdate();
+
+                if this.DeleteAllTable(AllObj."Object ID") then;
+            until AllObj.Next() = 0;
+        this.ProcessDialogClose();
+    end;
+
+    [TryFunction]
+    local procedure DeleteAllTable(TableId: Integer)
+    var
+        RecordRef: RecordRef;
+    begin
+        Clear(RecordRef);
+        RecordRef.Open(TableId);
+        RecordRef.DeleteAll();
+    end;
+    #endregion
+
+    #region eventos utils
+    [EventSubscriber(ObjectType::Codeunit, codeunit::"Document Attachment Mgmt", OnAfterGetRefTable, '', true, true)]
+    local procedure DocAttachManagementOnAfterGetRefTable(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    var
+        SaleSPerson: Record "Salesperson/Purchaser";
+    begin
+        case DocumentAttachment."Table ID" of
+
+            Database::"Salesperson/Purchaser":
+                begin
+                    RecRef.Open(Database::"Salesperson/Purchaser");
+                    if SaleSPerson.Get(DocumentAttachment."No.") then
+                        RecRef.GetTable(SaleSPerson);
+                end;
+        eND;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Document Attachment", 'OnAfterInitFieldsFromRecRef', '', false, false)]
+    local procedure OnAfterInitFieldsFromRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    var
+        FieldRef: FieldRef;
+        RecNo: Code[20];
+    begin
+        case RecRef.Number of
+            Database::"Salesperson/Purchaser":
+                begin
+                    FieldRef := RecRef.Field(1);
+                    RecNo := FieldRef.Value;
+                    DocumentAttachment.Validate("No.", RecNo);
+                end;
+
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Document Attachment Details", 'OnAfterOpenForRecRef', '', false, false)]
+    local procedure OnAfterOpenForRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef);
+    var
+        FieldRef: FieldRef;
+        RecNo: Code[20];
+    begin
+        case RecRef.Number of
+            Database::Location:
+                begin
+                    FieldRef := RecRef.Field(1);
+                    RecNo := FieldRef.Value;
+                    DocumentAttachment.Validate("No.", RecNo);
+                end;
+        end;
     end;
     #endregion
 

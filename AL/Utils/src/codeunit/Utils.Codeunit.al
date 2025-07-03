@@ -660,59 +660,148 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
-    #region Varios
-    procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
+    #region Precios
+    procedure GetUnitPriceAndDiscount(CustNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; var UnitPrice: Decimal; var LineDiscount: Decimal)
     var
-        BarcodeSymbology2D: Enum "Barcode Symbology 2D";
-        BarcodeFontProvider2D: Interface "Barcode Font Provider 2D";
+        Item: Record Item;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        TempSalesHeader: Record "Sales Header" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalcMgt: Codeunit "Price Calculation Mgt.";
+        PriceCalc: Interface "Price Calculation";
+        Line: Variant;
     begin
-        //la fuente en el informe tiene que ser IDAutomation2D
-        Clear(QRCode);
-        Clear(BarcodeFontProvider2D);
-
-        BarcodeFontProvider2D := Enum::"Barcode Font Provider 2D"::IDAutomation2D;
-        BarcodeSymbology2D := Enum::"Barcode Symbology 2D"::"QR-Code";
-        QRCode := BarcodeFontProvider2D.EncodeFont(BarcodeText, BarcodeSymbology2D);
-    end;
-
-    procedure GeFilterLotFromSalesLine(SalesLine: record "Sales Line") ReturnValue: Text
-    var
-        ReservationEntry: Record "Reservation Entry";
-        TrackingSpecification: Record "Tracking Specification";
-    begin
-        Clear(ReturnValue);
-
-        if SalesLine."Line No." = 0 then
+        //----------------------------------------------------------------------
+        // inicializar Variables
+        //----------------------------------------------------------------------
+        Clear(UnitPrice);
+        Clear(LineDiscount);
+        Clear(PriceSourceList);
+        Clear(SalesLinePrice);
+        Clear(PriceCalcMgt);
+        Clear(PriceCalc);
+        if not Item.Get(ItemNo) then
             exit;
 
-        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date");
+        if not Customer.Get(CustNo) then
+            exit;
 
-        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
-        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
-        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
-        ReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
-        if ReservationEntry.FindSet() then
-            repeat
-                if ReturnValue <> '' then
-                    ReturnValue += '|';
+        //----------------------------------------------------------------------
+        // Cabecera temporal 
+        //----------------------------------------------------------------------
+        TempSalesHeader.Init();
+        TempSalesHeader."Document Type" := TempSalesHeader."Document Type"::Order;
+        TempSalesHeader."No." := 'TEMP';
+        TempSalesHeader."Sell-to Customer No." := CustNo;
+        TempSalesHeader."Bill-to Customer No." := CustNo;
 
-                ReturnValue += ReservationEntry."Lot No.";
-            until ReservationEntry.Next() = 0;
+        // Fechas: usar hoy para evitar sorpresas con validez de precios
+        TempSalesHeader."Posting Date" := Today();
+        TempSalesHeader."Document Date" := Today();
 
-        TrackingSpecification.SetCurrentKey("Source ID", "Source Type", "Source Subtype",
-                                     "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
-        TrackingSpecification.SetRange("Source ID", SalesLine."Document No.");
-        TrackingSpecification.SetRange("Source Type", Database::"Sales Line");
-        TrackingSpecification.SetRange("Source Subtype", SalesLine."Document Type");
-        TrackingSpecification.SetRange("Source Ref. No.", SalesLine."Line No.");
-        if TrackingSpecification.FindSet() then
-            repeat
-                if ReturnValue <> '' then
-                    ReturnValue += '|';
+        // Datos del cliente
+        TempSalesHeader."Currency Code" := Customer."Currency Code";
+        TempSalesHeader."Price Calculation Method" := Customer."Price Calculation Method";
+        TempSalesHeader."Location Code" := Customer."Location Code";
+        TempSalesHeader."Salesperson Code" := Customer."Salesperson Code";
+        if Customer."Primary Contact No." <> '' then
+            TempSalesHeader."Sell-to Contact No." := Customer."Primary Contact No.";
 
-                ReturnValue += TrackingSpecification."Lot No.";
-            until TrackingSpecification.Next() = 0;
+        //----------------------------------------------------------------------
+        // Línea temporal 
+        //----------------------------------------------------------------------
+        TempSalesLine.Init();
+        TempSalesLine."Document Type" := TempSalesHeader."Document Type";
+        TempSalesLine."Document No." := TempSalesHeader."No.";
+        TempSalesLine."Line No." := 10000;
+        TempSalesLine.Type := TempSalesLine.Type::Item;
+        TempSalesLine."No." := ItemNo;
+        TempSalesLine.Quantity := 1;
+        TempSalesLine."Quantity (Base)" := 1;
+        TempSalesLine."Outstanding Quantity" := 1;
+        TempSalesLine."Posting Date" := Today();
+        TempSalesLine."Variant Code" := VariantCode;
+        TempSalesLine."Sell-to Customer No." := CustNo;
 
+        // Unidad de venta del artículo para evitar conversiones
+        TempSalesLine."Unit of Measure Code" := Item."Sales Unit of Measure";
+        TempSalesLine."Qty. per Unit of Measure" := 1;
+
+        // Datos del cliente
+        TempSalesLine."Customer Price Group" := Customer."Customer Price Group";
+        TempSalesLine."Customer Disc. Group" := Customer."Customer Disc. Group";
+        TempSalesLine."Allow Line Disc." := Customer."Allow Line Disc.";
+        TempSalesLine."Location Code" := Customer."Location Code";
+
+        //----------------------------------------------------------------------
+        // Enlazar cabecera + línea con el motor de precios
+        //    (a partir de este punto SalesLinePrice actúa como “contexto”)
+        //----------------------------------------------------------------------
+        SalesLinePrice.SetLine(Enum::"Price Type"::Sale, TempSalesHeader, TempSalesLine);
+
+        //----------------------------------------------------------------------
+        // Construir PriceSourceList en orden de prioridad
+        //
+        //    ❖ El motor de precios buscará la 1.ª coincidencia en esta lista.
+        //    ❖ Agregar ordenadamente evita que reglas genéricas sobrescriban
+        //      reglas específicas.
+        //----------------------------------------------------------------------
+        PriceSourceList.Init();
+
+        // Todos los clientes (Regla super-genérica)
+        PriceSourceList.Add(Enum::"Price Source Type"::"All Customers");
+
+        // Contacto primario — puede tener un precio negociado
+        if Customer."Primary Contact No." <> '' then
+            if Contact.Get(Customer."Primary Contact No.") then
+                PriceSourceList.Add(
+                    Enum::"Price Source Type"::Contact,
+                    Customer."Primary Contact No.");
+
+        // Grupo de precios de cliente
+        if Customer."Customer Price Group" <> '' then
+            PriceSourceList.Add(
+                Enum::"Price Source Type"::"Customer Price Group",
+                Customer."Customer Price Group");
+
+        // Grupo de descuentos de cliente
+        if Customer."Customer Disc. Group" <> '' then
+            PriceSourceList.Add(
+                Enum::"Price Source Type"::"Customer Disc. Group",
+                Customer."Customer Disc. Group");
+
+        // Precio específico para el propio cliente (mayor prioridad)
+        PriceSourceList.Add(Enum::"Price Source Type"::Customer, CustNo);
+
+        // Ligar la lista al contexto de precios
+        SalesLinePrice.SetSources(PriceSourceList);
+
+        //----------------------------------------------------------------------
+        // Obtener el “handler” concreto:
+        //    — BC selecciona internamente el algoritmo apropiado
+        //      (descuentos integrados vs. nuevo Pricing v2) —
+        //----------------------------------------------------------------------
+        if not PriceCalcMgt.GetHandler(SalesLinePrice, PriceCalc) then
+            exit;  // No hay motor disponible (caso muy excepcional)
+
+        //----------------------------------------------------------------------
+        // Calcular: primero precio ➜ luego descuento
+        //----------------------------------------------------------------------
+        PriceCalc.ApplyPrice(TempSalesLine.FieldNo("No."));
+        PriceCalc.ApplyDiscount();
+
+        // El motor devuelve la línea vía Variant para mantener desacoplamiento
+        PriceCalc.GetLine(Line);
+        TempSalesLine := Line;
+
+        //----------------------------------------------------------------------
+        // Copiar resultados a parámetros de salida
+        //----------------------------------------------------------------------
+        UnitPrice := TempSalesLine."Unit Price";
+        LineDiscount := TempSalesLine."Line Discount %";
     end;
 
     procedure CalcPVP(ItemNo: Code[20]; PVPCode: Code[20]) ReturnValue: Decimal
@@ -778,6 +867,64 @@ codeunit 59001 "Utils"
                         ReturnValue := TempPriceListLine."Unit Price";
                 end;
             until TempPriceListLine.Next() = 0;
+    end;
+
+
+    #endregion
+
+    #region Varios
+    procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
+    var
+        BarcodeSymbology2D: Enum "Barcode Symbology 2D";
+        BarcodeFontProvider2D: Interface "Barcode Font Provider 2D";
+    begin
+        //la fuente en el informe tiene que ser IDAutomation2D
+        Clear(QRCode);
+        Clear(BarcodeFontProvider2D);
+
+        BarcodeFontProvider2D := Enum::"Barcode Font Provider 2D"::IDAutomation2D;
+        BarcodeSymbology2D := Enum::"Barcode Symbology 2D"::"QR-Code";
+        QRCode := BarcodeFontProvider2D.EncodeFont(BarcodeText, BarcodeSymbology2D);
+    end;
+
+    procedure GeFilterLotFromSalesLine(SalesLine: record "Sales Line") ReturnValue: Text
+    var
+        ReservationEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        Clear(ReturnValue);
+
+        if SalesLine."Line No." = 0 then
+            exit;
+
+        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date");
+
+        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
+        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
+        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
+        ReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
+        if ReservationEntry.FindSet() then
+            repeat
+                if ReturnValue <> '' then
+                    ReturnValue += '|';
+
+                ReturnValue += ReservationEntry."Lot No.";
+            until ReservationEntry.Next() = 0;
+
+        TrackingSpecification.SetCurrentKey("Source ID", "Source Type", "Source Subtype",
+                                     "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+        TrackingSpecification.SetRange("Source ID", SalesLine."Document No.");
+        TrackingSpecification.SetRange("Source Type", Database::"Sales Line");
+        TrackingSpecification.SetRange("Source Subtype", SalesLine."Document Type");
+        TrackingSpecification.SetRange("Source Ref. No.", SalesLine."Line No.");
+        if TrackingSpecification.FindSet() then
+            repeat
+                if ReturnValue <> '' then
+                    ReturnValue += '|';
+
+                ReturnValue += TrackingSpecification."Lot No.";
+            until TrackingSpecification.Next() = 0;
+
     end;
 
     procedure DeleteAllDataCompany()

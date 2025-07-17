@@ -660,6 +660,90 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
+    #region funciones de Date and DateTime
+    procedure SubtractTwoDateReturnDays(ValueDate1: Date) ReturnValue: Integer
+    var
+        ValueDate2: Date;
+    begin
+        Clear(ValueDate2);
+        ReturnValue := this.SubtractTwoDateReturnDays(ValueDate1, ValueDate2);
+    end;
+
+    procedure SubtractTwoDateReturnDays(ValueDate1: Date; ValueDate2: Date) ReturnValue: Integer
+    begin
+        if ValueDate1 = 0D then
+            ValueDate1 := DMY2Date(1, 1, 1900);
+
+        if ValueDate2 = 0D then
+            ValueDate2 := DMY2Date(1, 1, 1900);
+
+        ReturnValue := ValueDate1 - ValueDate2;
+    end;
+
+    procedure SubtractTwoDatesReturnAsDate(ValueDate1: Date) ReturnValue: Date
+    var
+        ValueDate2: Date;
+    begin
+        Clear(ValueDate2);
+        ReturnValue := this.SubtractTwoDatesReturnAsDate(ValueDate1, ValueDate2);
+    end;
+
+    procedure SubtractTwoDatesReturnAsDate(ValueDate1: Date; ValueDate2: Date) ReturnValue: Date
+    var
+        DaysDiff: Integer;
+    begin
+        DaysDiff := this.SubtractTwoDateReturnDays(ValueDate1, ValueDate2);
+        ReturnValue := DMY2Date(1, 1, 1900) + DaysDiff;
+    end;
+
+    procedure SubtractTwoDateTimesReturnMilliseconds(ValueDateTime1: DateTime) ReturnValue: BigInteger
+    var
+        ValueDateTime2: DateTime;
+    begin
+        Clear(ValueDateTime2);
+        ReturnValue := this.SubtractTwoDateTimesReturnMilliseconds(ValueDateTime1, ValueDateTime2);
+    end;
+
+    procedure SubtractTwoDateTimesReturnMilliseconds(ValueDateTime1: DateTime; ValueDateTime2: DateTime) ReturnValue: BigInteger
+    var
+        DurationDiff: Duration;
+    begin
+        Clear(ReturnValue);
+
+        if ValueDateTime1 = 0DT then
+            ValueDateTime1 := CreateDateTime(DMY2Date(1, 1, 1900), 000000T);
+
+        if ValueDateTime2 = 0DT then
+            ValueDateTime2 := CreateDateTime(DMY2Date(1, 1, 1900), 000000T);
+
+        DurationDiff := ValueDateTime1 - ValueDateTime2;
+
+        ReturnValue := (DurationDiff div 1); // Duration en milisegundos
+    end;
+
+    procedure SubtractTwoDateTimesReturnAsDateTimeFromMilliseconds(ValueDateTime1: DateTime) ReturnValue: DateTime
+    var
+        ValueDateTime2: DateTime;
+    begin
+        Clear(ValueDateTime2);
+        ReturnValue := this.SubtractTwoDateTimesReturnAsDateTimeFromMilliseconds(ValueDateTime1, ValueDateTime2);
+    end;
+
+    procedure SubtractTwoDateTimesReturnAsDateTimeFromMilliseconds(ValueDateTime1: DateTime; ValueDateTime2: DateTime) ReturnValue: DateTime
+    var
+        MillisecondsDiff: BigInteger;
+        BaseDateTime: DateTime;
+    begin
+        Clear(ReturnValue);
+        MillisecondsDiff := this.SubtractTwoDateTimesReturnMilliseconds(ValueDateTime1, ValueDateTime2);
+
+        BaseDateTime := CreateDateTime(DMY2Date(1, 1, 1900), 000000T);
+
+        ReturnValue := (BaseDateTime + (MillisecondsDiff * 1));
+    end;
+
+    #endregion
+
     #region Precios
     procedure GetUnitPriceAndDiscount(CustNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; var UnitPrice: Decimal; var LineDiscount: Decimal)
     var

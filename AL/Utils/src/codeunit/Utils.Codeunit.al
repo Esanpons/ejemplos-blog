@@ -872,6 +872,36 @@ codeunit 59001 "Utils"
 
     #endregion
 
+    #region abrir selector de campos
+    procedure SelectFieldEnable(TableNo: Integer; FilterType: Text) ReturnValue: Integer
+    var
+        Fields: Record field;
+    begin
+        Clear(ReturnValue);
+        if TableNo = 0 then
+            exit;
+
+        Fields.Reset();
+        Fields.SetRange(TableNo, TableNo);
+        Fields.SetRange(Class, Fields.Class::Normal);
+        Fields.SetRange(Enabled, true);
+        Fields.SetFilter(ObsoleteReason, '<>Removed');
+        if FilterType <> '' then
+            Fields.SetFilter(Type, FilterType);
+
+        ReturnValue := this.SelectField(Fields);
+    end;
+
+    procedure SelectField(Fields: Record Field) ReturnValue: Integer
+    var
+        FieldSelection: Codeunit "Field Selection";
+    begin
+        Clear(ReturnValue);
+        if FieldSelection.Open(Fields) then
+            ReturnValue := Fields."No.";
+
+    end;
+    #endregion
     #region Varios
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var

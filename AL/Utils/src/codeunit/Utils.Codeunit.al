@@ -873,7 +873,28 @@ codeunit 59001 "Utils"
     #endregion
 
     #region abrir selector de campos
-    procedure SelectFieldEnable(TableNo: Integer; FilterType: Text) ReturnValue: Integer
+    procedure SelectFieldEnable(TableNo: Integer) ReturnValue: Integer
+    var
+        Fields: Record field;
+    begin
+        ReturnValue := this.SelectField(TableNo, '', '', Format(Fields.Class::Normal), true, false, '<>Removed');
+    end;
+
+    procedure SelectFieldEnable_FilterType(TableNo: Integer; FilterType: Text) ReturnValue: Integer
+    var
+        Fields: Record field;
+    begin
+        ReturnValue := this.SelectField(TableNo, FilterType, '', Format(Fields.Class::Normal), true, false, '<>Removed');
+    end;
+
+    procedure SelectFieldEnable_FilterNo(TableNo: Integer; FilterNo: Text) ReturnValue: Integer
+    var
+        Fields: Record field;
+    begin
+        ReturnValue := this.SelectField(TableNo, '', FilterNo, Format(Fields.Class::Normal), true, false, '<>Removed');
+    end;
+
+    procedure SelectField(TableNo: Integer; FilterType: Text; FilterNo: Text; FilterClass: Text; Enable: Boolean; IsPartOfPrimaryKey: Boolean; FilterObsoleteReason: Text) ReturnValue: Integer
     var
         Fields: Record field;
     begin
@@ -883,16 +904,21 @@ codeunit 59001 "Utils"
 
         Fields.Reset();
         Fields.SetRange(TableNo, TableNo);
-        Fields.SetRange(Class, Fields.Class::Normal);
-        Fields.SetRange(Enabled, true);
-        Fields.SetFilter(ObsoleteReason, '<>Removed');
+        Fields.SetRange(Enabled, Enable);
+        Fields.SetRange(IsPartOfPrimaryKey, IsPartOfPrimaryKey);
+        if FilterNo <> '' then
+            Fields.SetFilter("No.", FilterNo);
+        if FilterObsoleteReason <> '' then
+            Fields.SetFilter(ObsoleteReason, FilterObsoleteReason);
         if FilterType <> '' then
             Fields.SetFilter(Type, FilterType);
+        if FilterClass <> '' then
+            Fields.SetFilter(Class, FilterClass);
 
         ReturnValue := this.SelectField(Fields);
     end;
 
-    procedure SelectField(Fields: Record Field) ReturnValue: Integer
+    procedure SelectField(var Fields: Record Field) ReturnValue: Integer
     var
         FieldSelection: Codeunit "Field Selection";
     begin

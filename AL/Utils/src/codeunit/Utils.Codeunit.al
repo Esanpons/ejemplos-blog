@@ -127,6 +127,29 @@ codeunit 59001 "Utils"
 
         Message(Msg);
     end;
+
+    procedure ShowTableFilterDialog(TableCaption: Text; TableID: Integer; var FilterGetView: Text; var FilterText: Text)
+    var
+        RecordRef: RecordRef;
+        RetenPolFilterPageBuilder: FilterPageBuilder;
+        FilterPageBuilderCaptionLbl: Label '%1 Filters', Comment = 'ESP="Filtros de %1"';
+    begin
+        RetenPolFilterPageBuilder.AddTable(TableCaption, TableID);
+
+        if FilterGetView <> '' then
+            RetenPolFilterPageBuilder.SetView(TableCaption, FilterGetView);
+
+        RetenPolFilterPageBuilder.PageCaption(StrSubstNo(FilterPageBuilderCaptionLbl, TableCaption));
+        if not RetenPolFilterPageBuilder.RunModal() then
+            exit;
+
+        FilterGetView := RetenPolFilterPageBuilder.GetView(TableCaption, false);
+
+        Clear(RecordRef);
+        RecordRef.Open(TableId);
+        RecordRef.SetView(FilterGetView);
+        FilterText := RecordRef.GetFilters();
+    end;
     #endregion
 
     #region Conver Base64
@@ -1012,6 +1035,7 @@ codeunit 59001 "Utils"
 
     end;
     #endregion
+
     #region Varios
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var

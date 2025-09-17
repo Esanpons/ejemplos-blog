@@ -14,6 +14,10 @@ using System.Reflection;
 
 codeunit 60007 "Mgt. Send Mail"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
     #region FUNCIONES SEND
     procedure SendSimpleEmail(NewToRecipients: Text; IsSendDirectly: Boolean; Body: Text; Subject: Text) EmailAction: Enum "Email Action";
     begin

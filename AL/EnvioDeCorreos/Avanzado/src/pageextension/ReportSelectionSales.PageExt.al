@@ -4,6 +4,10 @@ using Microsoft.Sales.Setup;
 
 pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
     layout
     {
         modify("EmailLayoutCaption")

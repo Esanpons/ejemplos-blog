@@ -5,6 +5,10 @@ using System.Globalization;
 
 tableextension 60046 "Report Selections" extends "Report Selections"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
     fields
     {
         //crs-al disable

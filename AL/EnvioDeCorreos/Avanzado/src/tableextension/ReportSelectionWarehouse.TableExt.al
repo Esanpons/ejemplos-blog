@@ -7,6 +7,10 @@ using System.Globalization;
 
 tableextension 60047 "Report Selection Warehouse" extends "Report Selection Warehouse"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
     fields
     {
         //crs-al disable

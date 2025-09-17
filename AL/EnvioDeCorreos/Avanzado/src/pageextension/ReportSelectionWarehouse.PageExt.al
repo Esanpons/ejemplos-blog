@@ -4,6 +4,10 @@ using Microsoft.Warehouse.Setup;
 
 pageextension 60026 "ReportSelectionWarehouse" extends "Report Selection - Warehouse"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
+
     layout
     {
         addlast("Control1")

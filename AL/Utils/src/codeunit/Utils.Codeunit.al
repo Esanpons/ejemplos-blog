@@ -1036,6 +1036,85 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
+    #region Split Line Records
+
+    procedure SplitLine(var SalesLine: Record "Sales Line") ReturnValue: Integer
+    var
+        AuxSalesLine: Record "Sales Line";
+        LastSalesLine: Record "Sales Line";
+        Step: Integer;
+        CurrLineNo: Integer;
+        LastLineNo: Integer;
+        NewLine: Integer;
+    begin
+        // Paso “clásico” en BC
+        Step := 10000;
+
+        // Asegura clave por rendimiento (Document Type, Document No., Line No.)
+        AuxSalesLine.Reset();
+        AuxSalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+        AuxSalesLine.SetRange("Document Type", SalesLine."Document Type");
+        AuxSalesLine.SetRange("Document No.", SalesLine."Document No.");
+
+        // 1) Si no hay líneas en el documento, primera línea = 10000
+        if not AuxSalesLine.FindFirst() then
+            exit(Step);
+
+        // 2) Confirma el número de la línea “actual”
+        CurrLineNo := SalesLine."Line No.";
+        if CurrLineNo = 0 then begin
+            // Si te pasan una línea sin número (poco común), usa la última + Step
+            LastSalesLine.Copy(AuxSalesLine);
+            LastSalesLine.FindLast();
+            exit(LastSalesLine."Line No." + Step);
+        end;
+
+        // 3) Busca la “siguiente” estrictamente mayor que la actual
+        AuxSalesLine.SetFilter("Line No.", '>%1', CurrLineNo);
+        if AuxSalesLine.FindFirst() then
+            LastLineNo := AuxSalesLine."Line No."
+        else begin
+            // No hay siguiente → devuelve última + Step
+            LastSalesLine.Reset();
+            LastSalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+            LastSalesLine.SetRange("Document Type", SalesLine."Document Type");
+            LastSalesLine.SetRange("Document No.", SalesLine."Document No.");
+            LastSalesLine.FindLast();
+            exit(LastSalesLine."Line No." + Step);
+        end;
+
+        // 4) Calcula un número intermedio seguro
+        NewLine := LastLineNo - CurrLineNo;
+        if NewLine > 1 then begin
+            // Mitad del hueco (evita repetir el actual)
+            ReturnValue := CurrLineNo + (NewLine div 2);
+
+            // Protección adicional por si el gap era 1 (ya habría salido arriba)
+            if (ReturnValue = CurrLineNo) or (ReturnValue = LastLineNo) then
+                ReturnValue := LastLineNo - 1;
+
+            // Si por cualquier motivo quedó igual, cae al fallback de última + Step
+            if (ReturnValue <= CurrLineNo) or (ReturnValue >= LastLineNo) then begin
+                LastSalesLine.Reset();
+                LastSalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+                LastSalesLine.SetRange("Document Type", SalesLine."Document Type");
+                LastSalesLine.SetRange("Document No.", SalesLine."Document No.");
+                LastSalesLine.FindLast();
+                ReturnValue := LastSalesLine."Line No." + Step;
+            end;
+            exit(ReturnValue);
+        end else begin
+            // Gap <= 1 → sin espacio intermedio; usa última + Step
+            LastSalesLine.Reset();
+            LastSalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+            LastSalesLine.SetRange("Document Type", SalesLine."Document Type");
+            LastSalesLine.SetRange("Document No.", SalesLine."Document No.");
+            LastSalesLine.FindLast();
+            exit(LastSalesLine."Line No." + Step);
+        end;
+    end;
+    #endregion
+
     #region Varios
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var

@@ -21,92 +21,92 @@ codeunit 60007 "Mgt. Send Mail"
     #region FUNCIONES SEND
     procedure SendSimpleEmail(NewToRecipients: Text; IsSendDirectly: Boolean; Body: Text; Subject: Text) EmailAction: Enum "Email Action";
     begin
-        Clear(EmailMessage);
+        Clear(this.EmailMessage);
 
-        SetToRecipients(NewToRecipients);
-        CreateMail(IsSendDirectly);
-        SetBody(Body);
-        SetSubject(Subject);
-        EmailAction := SendEmail();
+        this.SetToRecipients(NewToRecipients);
+        this.CreateMail(IsSendDirectly);
+        this.SetBody(Body);
+        this.SetSubject(Subject);
+        EmailAction := this.SendEmail();
     end;
 
     procedure SendSimpleEmail(RecVariant: Variant; NewToRecipients: Text; IsSendDirectly: Boolean; Body: Text; Subject: Text) EmailAction: Enum "Email Action";
     begin
-        Clear(EmailMessage);
+        Clear(this.EmailMessage);
 
-        SetToRecipients(NewToRecipients);
-        CreateMail(RecVariant, IsSendDirectly);
-        SetBody(Body);
-        SetSubject(Subject);
-        EmailAction := SendEmail();
+        this.SetToRecipients(NewToRecipients);
+        this.CreateMail(RecVariant, IsSendDirectly);
+        this.SetBody(Body);
+        this.SetSubject(Subject);
+        EmailAction := this.SendEmail();
     end;
 
     procedure SendEmailReportSelection(RecVariant: Variant; NewReportSelectionUsage: Enum "Report Selection Usage"; IsSendDirectly: Boolean; FileName: Text[250]) EmailAction: Enum "Email Action";
     begin
         //REPORT SELECCTION
-        Clear(EmailMessage);
+        Clear(this.EmailMessage);
 
-        CreateMail(RecVariant, IsSendDirectly);
-        SetReportSelectionUsage(NewReportSelectionUsage);
-        AddSubjectReportSelections();
-        AddBodyReportSelections();
-        if SendSeparateAttachments then
-            AddSeparateAttachments(RecVariant, OptionAttachment::ReportSelections)
+        this.CreateMail(RecVariant, IsSendDirectly);
+        this.SetReportSelectionUsage(NewReportSelectionUsage);
+        this.AddSubjectReportSelections();
+        this.AddBodyReportSelections();
+        if this.SendSeparateAttachments then
+            this.AddSeparateAttachments(RecVariant, this.OptionAttachment::ReportSelections)
         else
-            AddAttachmentReportSelections(FileName);
+            this.AddAttachmentReportSelections(FileName);
 
-        EmailAction := SendEmail();
+        EmailAction := this.SendEmail();
     end;
 
     procedure SendEmailReportSelection(RecVariant: Variant; NewReportSelectionUsage: Enum "Report Selection Usage"; IsSendDirectly: Boolean; FileName: Text[250]; NewLanguageCode: Code[10]) EmailAction: Enum "Email Action";
     begin
         //REPORT SELECCTION
-        SetLanguage(NewLanguageCode);
-        EmailAction := SendEmailReportSelection(RecVariant, NewReportSelectionUsage, IsSendDirectly, FileName);
+        this.SetLanguage(NewLanguageCode);
+        EmailAction := this.SendEmailReportSelection(RecVariant, NewReportSelectionUsage, IsSendDirectly, FileName);
     end;
 
     procedure SendEmailReportSelectionWarehouse(RecVariant: Variant; NewSelectionWarehouseUsage: Enum "Report Selection Warehouse Usage"; IsSendDirectly: Boolean; FileName: Text[250]) EmailAction: Enum "Email Action";
     begin
         //REPORT SELECTION WAREHOUSE
-        Clear(EmailMessage);
+        Clear(this.EmailMessage);
 
-        CreateMail(RecVariant, IsSendDirectly);
-        SetReportSelectionWarehouseUsage(NewSelectionWarehouseUsage);
-        AddSubjectReportSelectionsWarehouse();
-        AddBodyReportSelectionWarehouse();
-        if SendSeparateAttachments then
-            AddSeparateAttachments(RecVariant, OptionAttachment::ReportSelectionWarehouse)
+        this.CreateMail(RecVariant, IsSendDirectly);
+        this.SetReportSelectionWarehouseUsage(NewSelectionWarehouseUsage);
+        this.AddSubjectReportSelectionsWarehouse();
+        this.AddBodyReportSelectionWarehouse();
+        if this.SendSeparateAttachments then
+            this.AddSeparateAttachments(RecVariant, this.OptionAttachment::ReportSelectionWarehouse)
         else
-            AddAttachmentReportSelectionWarehouse(FileName);
+            this.AddAttachmentReportSelectionWarehouse(FileName);
 
-        EmailAction := SendEmail();
+        EmailAction := this.SendEmail();
     end;
 
     procedure SendEmailReportSelectionWarehouse(RecVariant: Variant; NewSelectionWarehouseUsage: Enum "Report Selection Warehouse Usage"; IsSendDirectly: Boolean; FileName: Text[250]; NewLanguageCode: Code[10]) EmailAction: Enum "Email Action";
     begin
         //REPORT SELECTION WAREHOUSE
-        SetLanguage(NewLanguageCode);
-        EmailAction := SendEmailReportSelectionWarehouse(RecVariant, NewSelectionWarehouseUsage, IsSendDirectly, FileName);
+        this.SetLanguage(NewLanguageCode);
+        EmailAction := this.SendEmailReportSelectionWarehouse(RecVariant, NewSelectionWarehouseUsage, IsSendDirectly, FileName);
     end;
 
     procedure SendEmail() EmailAction: Enum "Email Action";
     var
         IsSend: Boolean;
     begin
-        if RecipientsCC <> '' then
-            AddRecipientsCC(RecipientsCC);
+        if this.RecipientsCC <> '' then
+            this.AddRecipientsCC(RecipientsCC);
 
-        if ToRecipients <> '' then
-            AddRecipients(ToRecipients);
+        if this.ToRecipients <> '' then
+            this.AddRecipients(ToRecipients);
 
-        if SendDirectly then begin
-            IsSend := Email.Send(EmailMessage);
+        if this.SendDirectly then begin
+            IsSend := this.Email.Send(EmailMessage);
 
             EmailAction := EmailAction::Discarded;
             if IsSend then
                 EmailAction := EmailAction::Sent;
         end else
-            EmailAction := Email.OpenInEditorModally(EmailMessage);
+            EmailAction := this.Email.OpenInEditorModally(EmailMessage);
 
     end;
 
@@ -115,35 +115,35 @@ codeunit 60007 "Mgt. Send Mail"
     #region FUNCIONES CREATE
     procedure CreateMail(RecVariant: Variant; IsSendDirectly: Boolean)
     begin
-        if not IsModifyGetTable then begin
-            Clear(RecordRef);
-            RecordRef.GetTable(RecVariant);
+        if not this.IsModifyGetTable then begin
+            Clear(this.RecordRef);
+            this.RecordRef.GetTable(RecVariant);
         end;
 
-        CreateMail(IsSendDirectly);
+        this.CreateMail(IsSendDirectly);
     end;
 
     procedure CreateMail(IsSendDirectly: Boolean)
     begin
-        SendDirectly := IsSendDirectly;
+        this.SendDirectly := IsSendDirectly;
 
         //crear el correo base
-        if SkipHtmlFormatting then
-            EmailMessage.Create(ToRecipients, SubjectTxt, BodyText)
+        if this.SkipHtmlFormatting then
+            this.EmailMessage.Create(this.ToRecipients, this.SubjectTxt, this.BodyText)
         else
-            EmailMessage.Create(ToRecipients, SubjectTxt, BodyText, true);
+            this.EmailMessage.Create(this.ToRecipients, this.SubjectTxt, this.BodyText, true);
     end;
 
     procedure CreateFileName() ReturnValue: Text[250]
     begin
         //funcion para extraer nombre del fichero estandar
-        ReturnValue := CopyStr(CreateTextFromRecord() + ' ' + GetDocumentNo(RecordRef), 1, 250);
+        ReturnValue := CopyStr(this.CreateTextFromRecord() + ' ' + this.GetDocumentNo(this.RecordRef), 1, 250);
     end;
 
     procedure CreateSubject() ReturnValue: Text[250]
     begin
         //funcion para crear asunto estandar
-        ReturnValue := CreateTextFromRecord();
+        ReturnValue := this.CreateTextFromRecord();
     end;
 
     #endregion
@@ -157,40 +157,40 @@ codeunit 60007 "Mgt. Send Mail"
         Length: Integer;
         Text001Lbl: Label ' / ', Locked = true;
     begin
-        if HideAddSubject then
+        if this.HideAddSubject then
             exit;
 
-        if SubjectTxt <> '' then
+        if this.SubjectTxt <> '' then
             exit;
 
         Clear(AuxSubjectTxt);
-        Clear(ReportLayoutSelection);
+        Clear(this.ReportLayoutSelection);
 
         ReportSelections.Reset();
-        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Subject", true);
-        ReportSelections.SetRange("Language Code", LanguageCode);
+        ReportSelections.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelections.IsEmpty() then
             ReportSelections.SetRange("Language Code");
 
         if ReportSelections.FindFirst() then begin
-            Clear(TempBlob);
-            Clear(OutStream);
-            Clear(InStream);
+            Clear(this.TempBlob);
+            Clear(this.OutStream);
+            Clear(this.InStream);
 
-            ChangeGlobalLanguaje(LanguageCode);
-
-            if ReportSelections."Subject Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected(ReportSelections."Subject Layout Code");
-
-            TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
-            REPORT.SaveAs(ReportSelections."Report ID", '', ReportFormat::Html, OutStream, RecordRef);
-            TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-            InStream.Read(AuxSubjectTxt);
+            ChangeGlobalLanguaje(this.LanguageCode);
 
             if ReportSelections."Subject Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected('');
+                this.ReportLayoutSelection.SetTempLayoutSelected(ReportSelections."Subject Layout Code");
+
+            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+            REPORT.SaveAs(ReportSelections."Report ID", '', ReportFormat::Html, this.OutStream, this.RecordRef);
+            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+            this.InStream.Read(AuxSubjectTxt);
+
+            if ReportSelections."Subject Layout Code" <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected('');
 
             //buscamos la posicion incial y el tamaño del texto
             InitPosition := StrPos(AuxSubjectTxt, '<span>') + 6;
@@ -200,20 +200,20 @@ codeunit 60007 "Mgt. Send Mail"
             AuxSubjectTxt := CopyStr(AuxSubjectTxt, InitPosition, Length);
         end;
 
-        if SubjectTxt <> '' then
-            SubjectTxt += Text001Lbl;
+        if this.SubjectTxt <> '' then
+            this.SubjectTxt += Text001Lbl;
 
-        SubjectTxt += AuxSubjectTxt;
+        this.SubjectTxt += AuxSubjectTxt;
 
-        if SubjectTxt = '' then
-            SubjectTxt := CreateSubject();
+        if this.SubjectTxt = '' then
+            this.SubjectTxt := this.CreateSubject();
 
-        ReturnValue := SubjectTxt;
+        ReturnValue := this.SubjectTxt;
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
 
-        EmailMessage.SetSubject(SubjectTxt);
+        this.EmailMessage.SetSubject(this.SubjectTxt);
     end;
 
     procedure AddBodyReportSelections() ReturnValue: Text;
@@ -222,53 +222,53 @@ codeunit 60007 "Mgt. Send Mail"
         AuxBodyText: Text;
         Text001Lbl: Label '<br> <br> <hr> <br> <br> <br> <br>', Locked = true;
     begin
-        if HideAddBody then
+        if this.HideAddBody then
             exit;
 
-        if BodyText <> '' then
+        if this.BodyText <> '' then
             exit;
 
         Clear(AuxBodyText);
-        Clear(ReportLayoutSelection);
+        Clear(this.ReportLayoutSelection);
 
         ReportSelections.Reset();
-        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Body", true);
-        ReportSelections.SetRange("Language Code", LanguageCode);
+        ReportSelections.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelections.IsEmpty() then
             ReportSelections.SetRange("Language Code");
 
         if ReportSelections.FindFirst() then begin
-            Clear(TempBlob);
-            Clear(OutStream);
-            Clear(InStream);
+            Clear(this.TempBlob);
+            Clear(this.OutStream);
+            Clear(this.InStream);
 
-            ChangeGlobalLanguaje(LanguageCode);
-
-            if ReportSelections."Email Body Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected(ReportSelections."Email Body Layout Code");
-
-            TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
-            REPORT.SaveAs(ReportSelections."Report ID", '', ReportFormat::Html, OutStream, RecordRef);
-            TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-            InStream.Read(AuxBodyText);
+            this.ChangeGlobalLanguaje(this.LanguageCode);
 
             if ReportSelections."Email Body Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected('');
+                this.ReportLayoutSelection.SetTempLayoutSelected(ReportSelections."Email Body Layout Code");
+
+            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+            REPORT.SaveAs(ReportSelections."Report ID", '', ReportFormat::Html, this.OutStream, this.RecordRef);
+            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+            this.InStream.Read(AuxBodyText);
+
+            if ReportSelections."Email Body Layout Code" <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected('');
         end;
 
-        if BodyText <> '' then
-            BodyText += Text001Lbl;
+        if this.BodyText <> '' then
+            this.BodyText += Text001Lbl;
 
-        BodyText += AuxBodyText;
+        this.BodyText += AuxBodyText;
 
-        ReturnValue := BodyText;
+        ReturnValue := this.BodyText;
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
 
-        EmailMessage.SetBody(BodyText);
+        this.EmailMessage.SetBody(this.BodyText);
     end;
 
     procedure AddAttachmentReportSelections(FileName: Text[250])
@@ -277,48 +277,48 @@ codeunit 60007 "Mgt. Send Mail"
         VersionFileName: Integer;
         l_FileName: Text[250];
     begin
-        if HideAddAttachment then
+        if this.HideAddAttachment then
             exit;
 
         VersionFileName := 0;
 
         if FileName = '' then
-            FileName := CreateFileName();
+            FileName := this.CreateFileName();
 
-        ChangeGlobalLanguaje(LanguageCode);
+        this.ChangeGlobalLanguaje(this.LanguageCode);
 
         ReportSelections.Reset();
-        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
         ReportSelections.SetRange("Use for Email Attachment", true);
-        ReportSelections.SetRange("Language Code", LanguageCode);
+        ReportSelections.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelections.IsEmpty() then
             ReportSelections.SetRange("Language Code");
 
         if ReportSelections.FindSet() then
             repeat
-                SelectAttachmentFormat(ReportSelections."Report ID");
+                this.SelectAttachmentFormat(ReportSelections."Report ID");
 
-                Clear(TempBlob);
-                Clear(OutStream);
-                Clear(InStream);
+                Clear(this.TempBlob);
+                Clear(this.OutStream);
+                Clear(this.InStream);
 
                 VersionFileName += 1;
 
                 if VersionFileName > 1 then
                     FileName += '_' + Format(VersionFileName);
 
-                l_FileName := CopyStr(FileName + '.' + format(ContentTypeAddAttachment), 1, 250);
+                l_FileName := CopyStr(FileName + '.' + format(this.ContentTypeAddAttachment), 1, 250);
 
-                TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
-                REPORT.SaveAs(ReportSelections."Report ID", '', AttachmentFormat, OutStream, RecordRef);
-                TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-                EmailMessage.AddAttachment(l_FileName, ContentTypeAddAttachment, InStream);
+                this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+                REPORT.SaveAs(ReportSelections."Report ID", '', this.AttachmentFormat, this.OutStream, this.RecordRef);
+                this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+                this.EmailMessage.AddAttachment(l_FileName, this.ContentTypeAddAttachment, this.InStream);
             until ReportSelections.Next() = 0;
 
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
     end;
     #endregion
 
@@ -332,40 +332,40 @@ codeunit 60007 "Mgt. Send Mail"
         Length: Integer;
         Text001Lbl: Label ' / ', Locked = true;
     begin
-        if HideAddSubject then
+        if this.HideAddSubject then
             exit;
 
-        if SubjectTxt <> '' then
+        if this.SubjectTxt <> '' then
             exit;
 
         Clear(AuxSubjectTxt);
-        Clear(ReportLayoutSelection);
+        Clear(this.ReportLayoutSelection);
 
         ReportSelectionWarehouse.Reset();
-        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionUsage);
+        ReportSelectionWarehouse.SetRange(Usage, this.ReportSelectionUsage);
         ReportSelectionWarehouse.SetRange("Use for Email Subject", true);
-        ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
+        ReportSelectionWarehouse.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelectionWarehouse.IsEmpty() then
             ReportSelectionWarehouse.SetRange("Language Code");
 
         if ReportSelectionWarehouse.FindFirst() then begin
-            Clear(TempBlob);
-            Clear(OutStream);
-            Clear(InStream);
+            Clear(this.TempBlob);
+            Clear(this.OutStream);
+            Clear(this.InStream);
 
-            ChangeGlobalLanguaje(LanguageCode);
-
-            if ReportSelectionWarehouse."Subject Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected(ReportSelectionWarehouse."Subject Layout Code");
-
-            TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
-            REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', ReportFormat::Html, OutStream, RecordRef);
-            TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-            InStream.Read(AuxSubjectTxt);
+            this.ChangeGlobalLanguaje(this.LanguageCode);
 
             if ReportSelectionWarehouse."Subject Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected('');
+                this.ReportLayoutSelection.SetTempLayoutSelected(ReportSelectionWarehouse."Subject Layout Code");
+
+            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+            REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', ReportFormat::Html, this.OutStream, this.RecordRef);
+            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+            this.InStream.Read(AuxSubjectTxt);
+
+            if ReportSelectionWarehouse."Subject Layout Code" <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected('');
 
             //buscamos la posicion incial y el tamaño del texto
             InitPosition := StrPos(AuxSubjectTxt, '<span>') + 6;
@@ -375,20 +375,20 @@ codeunit 60007 "Mgt. Send Mail"
             AuxSubjectTxt := CopyStr(AuxSubjectTxt, InitPosition, Length);
         end;
 
-        if SubjectTxt <> '' then
-            SubjectTxt += Text001Lbl;
+        if this.SubjectTxt <> '' then
+            this.SubjectTxt += Text001Lbl;
 
-        SubjectTxt += AuxSubjectTxt;
+        this.SubjectTxt += AuxSubjectTxt;
 
-        if SubjectTxt = '' then
-            SubjectTxt := CreateSubject();
+        if this.SubjectTxt = '' then
+            this.SubjectTxt := CreateSubject();
 
-        ReturnValue := SubjectTxt;
+        ReturnValue := this.SubjectTxt;
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
 
-        EmailMessage.SetSubject(SubjectTxt);
+        this.EmailMessage.SetSubject(this.SubjectTxt);
     end;
 
     procedure AddBodyReportSelectionWarehouse() ReturnValue: Text;
@@ -397,53 +397,53 @@ codeunit 60007 "Mgt. Send Mail"
         AuxBodyText: Text;
         Text001Lbl: Label '<br> <br> <hr> <br> <br> <br> <br>', Locked = true;
     begin
-        if HideAddBody then
+        if this.HideAddBody then
             exit;
 
-        if BodyText <> '' then
+        if this.BodyText <> '' then
             exit;
 
         Clear(AuxBodyText);
-        Clear(ReportLayoutSelection);
+        Clear(this.ReportLayoutSelection);
 
         ReportSelectionWarehouse.Reset();
-        ReportSelectionWarehouse.SetRange(Usage, SelectionWarehouseUsage);
-        ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
+        ReportSelectionWarehouse.SetRange(Usage, this.SelectionWarehouseUsage);
+        ReportSelectionWarehouse.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelectionWarehouse.IsEmpty() then
             ReportSelectionWarehouse.SetRange("Language Code");
 
         if ReportSelectionWarehouse.FindFirst() then begin
-            Clear(TempBlob);
-            Clear(OutStream);
-            Clear(InStream);
+            Clear(this.TempBlob);
+            Clear(this.OutStream);
+            Clear(this.InStream);
 
-            ChangeGlobalLanguaje(LanguageCode);
-
-            if ReportSelectionWarehouse."Email Body Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected(ReportSelectionWarehouse."Email Body Layout Code");
-
-            TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
-            REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', ReportFormat::Html, OutStream, RecordRef);
-            TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-            InStream.Read(AuxBodyText);
+            this.ChangeGlobalLanguaje(this.LanguageCode);
 
             if ReportSelectionWarehouse."Email Body Layout Code" <> '' then
-                ReportLayoutSelection.SetTempLayoutSelected('');
+                this.ReportLayoutSelection.SetTempLayoutSelected(ReportSelectionWarehouse."Email Body Layout Code");
+
+            this.TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
+            REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', ReportFormat::Html, this.OutStream, this.RecordRef);
+            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+            this.InStream.Read(AuxBodyText);
+
+            if ReportSelectionWarehouse."Email Body Layout Code" <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected('');
 
         end;
 
-        if BodyText <> '' then
-            BodyText += Text001Lbl;
+        if this.BodyText <> '' then
+            this.BodyText += Text001Lbl;
 
-        BodyText += AuxBodyText;
+        this.BodyText += AuxBodyText;
 
-        ReturnValue := BodyText;
+        ReturnValue := this.BodyText;
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
 
-        EmailMessage.SetBody(BodyText);
+        this.EmailMessage.SetBody(this.BodyText);
     end;
 
     procedure AddAttachmentReportSelectionWarehouse(FileName: Text[250])
@@ -452,49 +452,49 @@ codeunit 60007 "Mgt. Send Mail"
         VersionFileName: Integer;
         l_FileName: Text[250];
     begin
-        if HideAddAttachment then
+        if this.HideAddAttachment then
             exit;
 
         VersionFileName := 0;
 
         if FileName = '' then
-            FileName := CreateFileName();
+            FileName := this.CreateFileName();
 
-        ChangeGlobalLanguaje(LanguageCode);
+        this.ChangeGlobalLanguaje(this.LanguageCode);
 
         ReportSelectionWarehouse.Reset();
-        ReportSelectionWarehouse.SetRange(Usage, SelectionWarehouseUsage);
-        ReportSelectionWarehouse.SetRange("Language Code", LanguageCode);
+        ReportSelectionWarehouse.SetRange(Usage, this.SelectionWarehouseUsage);
+        ReportSelectionWarehouse.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelectionWarehouse.IsEmpty() then
             ReportSelectionWarehouse.SetRange("Language Code");
 
         if ReportSelectionWarehouse.FindSet() then
             repeat
-                SelectAttachmentFormat(ReportSelectionWarehouse."Report ID");
+                this.SelectAttachmentFormat(ReportSelectionWarehouse."Report ID");
 
-                Clear(TempBlob);
-                Clear(OutStream);
-                Clear(InStream);
+                Clear(this.TempBlob);
+                Clear(this.OutStream);
+                Clear(this.InStream);
 
                 VersionFileName += 1;
 
                 if VersionFileName > 1 then
                     FileName += '_' + Format(VersionFileName);
 
-                FileName += '.' + format(ContentTypeAddAttachment);
+                FileName += '.' + format(this.ContentTypeAddAttachment);
 
                 l_FileName := CopyStr(FileName + '.' + format(ContentTypeAddAttachment), 1, 250);
 
-                TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
-                REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', AttachmentFormat, OutStream, RecordRef);
-                TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
-                EmailMessage.AddAttachment(l_FileName, ContentTypeAddAttachment, InStream);
+                this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+                REPORT.SaveAs(ReportSelectionWarehouse."Report ID", '', this.AttachmentFormat, this.OutStream, this.RecordRef);
+                this.TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+                this.EmailMessage.AddAttachment(l_FileName, this.ContentTypeAddAttachment, this.InStream);
 
             until ReportSelectionWarehouse.Next() = 0;
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
     end;
     #endregion
 
@@ -502,97 +502,97 @@ codeunit 60007 "Mgt. Send Mail"
     procedure AddRecipientsCC(NewRecipientsCC: Text)
     begin
         //adjuntamos los correos en copia
-        RecipientsCC := NewRecipientsCC;
-        EmailMessage.AddRecipient(Enum::"Email Recipient Type"::Cc, NewRecipientsCC);
+        this.RecipientsCC := NewRecipientsCC;
+        this.EmailMessage.AddRecipient(Enum::"Email Recipient Type"::Cc, NewRecipientsCC);
     end;
 
     procedure AddRecipients(NewToRecipients: Text)
     begin
         //adjuntamos los correos de envio
-        ToRecipients := NewToRecipients;
-        EmailMessage.AddRecipient(Enum::"Email Recipient Type"::"To", NewToRecipients);
+        this.ToRecipients := NewToRecipients;
+        this.EmailMessage.AddRecipient(Enum::"Email Recipient Type"::"To", NewToRecipients);
     end;
 
     procedure AddAttachment(NewInStream: InStream; NewFileName: Text[250]; NewContentType: Text[250])
     begin
-        EmailMessage.AddAttachment(NewFileName, NewContentType, NewInStream);
+        this.EmailMessage.AddAttachment(NewFileName, NewContentType, NewInStream);
     end;
     #endregion
 
     #region FUNCIONES SET
     procedure SetToRecipients(NewRecipients: Text)
     begin
-        ToRecipients := NewRecipients;
+        this.ToRecipients := NewRecipients;
     end;
 
     procedure SetRecipientsCC(NewRecipientsCC: Text)
     begin
-        RecipientsCC := NewRecipientsCC;
+        this.RecipientsCC := NewRecipientsCC;
     end;
 
     procedure SetSubject(NewSubject: Text)
     begin
-        SubjectTxt := NewSubject;
-        EmailMessage.SetSubject(SubjectTxt);
+        this.SubjectTxt := NewSubject;
+        this.EmailMessage.SetSubject(SubjectTxt);
     end;
 
     procedure SetBody(NewBody: Text)
     begin
-        BodyText := NewBody;
-        EmailMessage.SetBody(BodyText);
+        this.BodyText := NewBody;
+        this.EmailMessage.SetBody(BodyText);
     end;
 
     procedure SetRecord(RecVariant: Variant)
     begin
-        Clear(RecordRef);
-        RecordRef.GetTable(RecVariant);
-        IsModifyGetTable := true;
+        Clear(this.RecordRef);
+        this.RecordRef.GetTable(RecVariant);
+        this.IsModifyGetTable := true;
     end;
 
     procedure SetReportSelectionUsage(NewReportSelectionUsage: Enum "Report Selection Usage")
     begin
-        ReportSelectionUsage := NewReportSelectionUsage;
+        this.ReportSelectionUsage := NewReportSelectionUsage;
     end;
 
     procedure SetReportSelectionWarehouseUsage(NewReportSelectionWarehouseUsage: Enum "Report Selection Warehouse Usage")
     begin
-        SelectionWarehouseUsage := NewReportSelectionWarehouseUsage;
+        this.SelectionWarehouseUsage := NewReportSelectionWarehouseUsage;
     end;
 
     procedure SetLanguage(NewLanguageCode: Code[10])
     begin
-        LanguageCode := NewLanguageCode;
+        this.LanguageCode := NewLanguageCode;
     end;
 
     procedure SetHideAddAttachment(NewHideAddAttachment: Boolean)
     begin
-        HideAddAttachment := NewHideAddAttachment;
+        this.HideAddAttachment := NewHideAddAttachment;
     end;
 
     procedure SetHideAddBody(NewHideAddBody: Boolean)
     begin
-        HideAddBody := NewHideAddBody;
+        this.HideAddBody := NewHideAddBody;
     end;
 
     procedure SetHideAddSubject(NewHideAddSubject: Boolean)
     begin
-        HideAddSubject := NewHideAddSubject;
+        this.HideAddSubject := NewHideAddSubject;
     end;
 
     procedure SetAttachmentFormat(NewAttachmentFormat: ReportFormat)
     begin
-        AttachmentFormat := NewAttachmentFormat;
-        IsModifyAttachmentFormat := true;
+        this.AttachmentFormat := NewAttachmentFormat;
+        this.IsModifyAttachmentFormat := true;
     end;
 
     procedure SetSendSeparateAttachments()
     begin
-        SendSeparateAttachments := true;
+        this.SendSeparateAttachments := true;
     end;
 
     procedure SetSkipHtmlFormatting()
     begin
-        SkipHtmlFormatting := true;
+        this.SkipHtmlFormatting := true;
     end;
     #endregion
 
@@ -605,7 +605,7 @@ codeunit 60007 "Mgt. Send Mail"
         if NewLanguageCode = '' then
             exit;
 
-        InitLanguageID := GlobalLanguage();
+        this.InitLanguageID := GlobalLanguage();
 
         Language.Reset();
         Language.SetRange(Code, NewLanguageCode);
@@ -622,36 +622,36 @@ codeunit 60007 "Mgt. Send Mail"
     var
         ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
-        ChangeGlobalLanguaje(LanguageCode);
+        this.ChangeGlobalLanguaje(this.LanguageCode);
 
         Clear(ReportDistributionManagement);
 
         Clear(ReportDistributionManagement);
-        ReturnValue := ReportDistributionManagement.GetFullDocumentTypeText(RecordRef);
+        ReturnValue := ReportDistributionManagement.GetFullDocumentTypeText(this.RecordRef);
 
         if ReturnValue = '' then
-            ReturnValue := CopyStr(RecordRef.Caption(), 1, 250);
+            ReturnValue := CopyStr(this.RecordRef.Caption(), 1, 250);
 
-        if LanguageCode <> '' then
-            GlobalLanguage(InitLanguageID);
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
     end;
 
     local procedure SelectAttachmentFormat(ReportID: Integer)
     begin
-        if not IsModifyAttachmentFormat then
-            AttachmentFormat := SearchReportFormat(ReportID);
+        if not this.IsModifyAttachmentFormat then
+            this.AttachmentFormat := this.SearchReportFormat(ReportID);
 
-        case AttachmentFormat of
-            AttachmentFormat::Pdf:
-                ContentTypeAddAttachment := 'pdf';
-            AttachmentFormat::Excel:
-                ContentTypeAddAttachment := 'xlsx';
-            AttachmentFormat::Html:
-                ContentTypeAddAttachment := 'html';
-            AttachmentFormat::Word:
-                ContentTypeAddAttachment := 'docx';
-            AttachmentFormat::Xml:
-                ContentTypeAddAttachment := 'xml';
+        case this.AttachmentFormat of
+            this.AttachmentFormat::Pdf:
+                this.ContentTypeAddAttachment := 'pdf';
+            this.AttachmentFormat::Excel:
+                this.ContentTypeAddAttachment := 'xlsx';
+            this.AttachmentFormat::Html:
+                this.ContentTypeAddAttachment := 'html';
+            this.AttachmentFormat::Word:
+                this.ContentTypeAddAttachment := 'docx';
+            this.AttachmentFormat::Xml:
+                this.ContentTypeAddAttachment := 'xml';
 
         end;
     end;
@@ -672,7 +672,7 @@ codeunit 60007 "Mgt. Send Mail"
         if ReportLayoutList.FindSet() then
             repeat
                 if DefaultReportLayoutList."Report ID" <> ReportLayoutList."Report ID" then
-                    GetDefaultReportLayoutSelection(ReportLayoutList."Report ID", DefaultReportLayoutList);
+                    this.GetDefaultReportLayoutSelection(ReportLayoutList."Report ID", DefaultReportLayoutList);
 
                 IsDefaultLayout := (DefaultReportLayoutList."Report ID" = ReportLayoutList."Report ID") and (DefaultReportLayoutList.Name = ReportLayoutList.Name) and (DefaultReportLayoutList."Application ID" = ReportLayoutList."Application ID");
 
@@ -811,14 +811,14 @@ codeunit 60007 "Mgt. Send Mail"
         if AllDocRecordRef.FindSet() then
             repeat
                 Clear(RecordRef);
-                RecordRef.Open(AllDocRecordRef.Number);
-                RecordRef.SetPosition(AllDocRecordRef.GetPosition());
-                RecordRef.SetRecFilter();
+                this.RecordRef.Open(AllDocRecordRef.Number);
+                this.RecordRef.SetPosition(AllDocRecordRef.GetPosition());
+                this.RecordRef.SetRecFilter();
                 case IntOptionAttachment of
-                    OptionAttachment::ReportSelections:
-                        AddAttachmentReportSelections('');
-                    OptionAttachment::ReportSelectionWarehouse:
-                        AddAttachmentReportSelectionWarehouse('');
+                    this.OptionAttachment::ReportSelections:
+                        this.AddAttachmentReportSelections('');
+                    this.OptionAttachment::ReportSelectionWarehouse:
+                        this.AddAttachmentReportSelectionWarehouse('');
 
                 end;
             until AllDocRecordRef.Next() = 0;

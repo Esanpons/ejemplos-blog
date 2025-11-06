@@ -61,7 +61,7 @@ codeunit 60007 "Mgt. Send Mail"
     procedure SendEmailReportSelection(RecVariant: Variant; NewReportSelectionUsage: Enum "Report Selection Usage"; IsSendDirectly: Boolean; FileName: Text[250]; NewLanguageCode: Code[10]) EmailAction: Enum "Email Action";
     begin
         //REPORT SELECCTION
-        SetLanguage(LanguageCode);
+        SetLanguage(NewLanguageCode);
         EmailAction := SendEmailReportSelection(RecVariant, NewReportSelectionUsage, IsSendDirectly, FileName);
     end;
 
@@ -85,7 +85,7 @@ codeunit 60007 "Mgt. Send Mail"
     procedure SendEmailReportSelectionWarehouse(RecVariant: Variant; NewSelectionWarehouseUsage: Enum "Report Selection Warehouse Usage"; IsSendDirectly: Boolean; FileName: Text[250]; NewLanguageCode: Code[10]) EmailAction: Enum "Email Action";
     begin
         //REPORT SELECTION WAREHOUSE
-        SetLanguage(LanguageCode);
+        SetLanguage(NewLanguageCode);
         EmailAction := SendEmailReportSelectionWarehouse(RecVariant, NewSelectionWarehouseUsage, IsSendDirectly, FileName);
     end;
 

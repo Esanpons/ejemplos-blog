@@ -26,12 +26,12 @@ tableextension 60046 "Report Selections" extends "Report Selections"
             trigger OnValidate()
             begin
                 if not Rec."Use for Email Subject" then
-                    Rec.Validate("Subject Layout Code", '');
+                    Rec.Validate("Email Subject Layout Code", '');
             end;
         }
         field(60001; "Email Subject Layout Descr."; Text[250])
         {
-            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Subject Layout Code")));
+            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Email Subject Layout Code")));
             Caption = 'Email Subject Design', Comment = 'ESP="Diseño del asunto del correo electronico"';
             Editable = false;
             FieldClass = FlowField;
@@ -41,11 +41,11 @@ tableextension 60046 "Report Selections" extends "Report Selections"
                 LookupLayout_Attachment();
             end;
         }
-        field(60002; "Subject Layout Code"; Code[20])
+        field(60002; "Email Subject Layout Code"; Code[20])
         {
             Caption = 'Email Subject Layout Code', Comment = 'ESP="Código de diseño de informe personalizado del asunto"';
             DataClassification = CustomerContent;
-            TableRelation = "Custom Report Layout".Code where(Code = field("Subject Layout Code"), "Report ID" = field("Report ID"));
+            TableRelation = "Custom Report Layout".Code where(Code = field("Email Subject Layout Code"), "Report ID" = field("Report ID"));
 
             trigger OnValidate()
             begin
@@ -66,7 +66,7 @@ tableextension 60046 "Report Selections" extends "Report Selections"
 
         field(60007; "Email Attach. Layout Descr."; Text[250])
         {
-            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Subject Layout Code")));
+            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Email Subject Layout Code")));
             Caption = 'Email Attachments Design', Comment = 'ESP="Diseño del adjunto del correo electronico"';
             Editable = false;
             FieldClass = FlowField;
@@ -90,7 +90,7 @@ tableextension 60046 "Report Selections" extends "Report Selections"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
-            Rec.Validate("Subject Layout Code", CustomReportLayout.Code);
+            Rec.Validate("Email Subject Layout Code", CustomReportLayout.Code);
     end;
 
     procedure LookupLayout_Attachment()

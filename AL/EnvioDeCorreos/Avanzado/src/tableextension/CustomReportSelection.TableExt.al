@@ -16,45 +16,33 @@ tableextension 60045 "Custom Report Selection" extends "Custom Report Selection"
             trigger OnValidate()
             begin
                 if not Rec."Use for Email Subject" then
-                    Rec.Validate("Subject Layout Code", '');
+                    Rec.Validate("Email Subject Layout Code", '');
             end;
         }
         field(60001; "Email Subject Layout Descr."; Text[250])
         {
-            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Subject Layout Code")));
+            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Email Subject Layout Code")));
             Caption = 'Email Subject Design', Comment = 'ESP="Diseño del asunto del correo electronico"';
             Editable = false;
             FieldClass = FlowField;
 
             trigger OnLookup()
-            var
-                CustomReportLayout: Record "Custom Report Layout";
             begin
-                if Rec."Subject Layout Type" = Rec."Subject Layout Type"::"Custom Report Layout" then
-                    if CustomReportLayout.LookupLayoutOK("Report ID") then
-                        Rec.Validate("Subject Layout Code", CustomReportLayout.Code);
+                LookupLayout_Subject();
             end;
         }
-        field(60002; "Subject Layout Code"; Code[20])
+        field(60002; "Email Subject Layout Code"; Code[20])
         {
             Caption = 'Email Subject Layout Code', Comment = 'ESP="Código de diseño de informe personalizado del asunto"';
             DataClassification = CustomerContent;
-            TableRelation = if ("Subject Layout Type" = const("Custom Report Layout")) "Custom Report Layout".Code where(Code = field("Subject Layout Code"),
-                                                                                                                           "Report ID" = field("Report ID"))
-            else
-            if ("Subject Layout Type" = const("HTML Layout")) "O365 HTML Template".Code;
+            TableRelation = "Custom Report Layout".Code where(Code = field("Email Subject Layout Code"), "Report ID" = field("Report ID"));
 
             trigger OnValidate()
             begin
                 CalcFields(Rec."Email Subject Layout Descr.");
             end;
         }
-        field(60003; "Subject Layout Type"; Enum "Email Body Layout Type")
-        {
-            Caption = 'Email Body Layout Type', Comment = 'ESP="Tipo de diseño del asunto del correo"';
-            DataClassification = CustomerContent;
-            InitValue = "Custom Report Layout";
-        }
+
         field(60004; "Language Code"; Code[10])
         {
             Caption = 'Language Code', Comment = 'ESP="Cód. idioma"';
@@ -81,6 +69,6 @@ tableextension 60045 "Custom Report Selection" extends "Custom Report Selection"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
-            Rec.Validate("Subject Layout Code", CustomReportLayout.Code);
+            Rec.Validate("Email Subject Layout Code", CustomReportLayout.Code);
     end;
 }

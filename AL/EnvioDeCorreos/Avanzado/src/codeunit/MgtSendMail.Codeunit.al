@@ -152,7 +152,11 @@ codeunit 60007 "Mgt. Send Mail"
     procedure AddSubjectReportSelections() ReturnValue: Text;
     var
         ReportSelections: Record "Report Selections";
+        CustomReportSelection: Record "Custom Report Selection";
         AuxSubjectTxt: Text;
+        ReportID: Integer;
+        LayoutCode: Code[20];
+        IsFindFirst: Boolean;
     begin
         if this.HideAddSubject then
             exit;
@@ -162,22 +166,51 @@ codeunit 60007 "Mgt. Send Mail"
 
         Clear(AuxSubjectTxt);
         Clear(this.ReportLayoutSelection);
+        Clear(IsFindFirst);
+        Clear(ReportID);
+        Clear(LayoutCode);
 
-        ReportSelections.Reset();
-        ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
-        ReportSelections.SetRange("Use for Email Subject", true);
-        ReportSelections.SetRange("Language Code", this.LanguageCode);
+        if (this.SourceType <> 0) and (this.SourceNo <> '') then begin
+            CustomReportSelection.Reset();
+            CustomReportSelection.SetRange("Source Type", this.SourceType);
+            CustomReportSelection.SetRange("Source No.", this.SourceNo);
+            CustomReportSelection.SetRange(Usage, this.ReportSelectionUsage);
+            CustomReportSelection.SetRange("Use for Email Subject", true);
+            CustomReportSelection.SetRange("Language Code", this.LanguageCode);
 
-        if ReportSelections.IsEmpty() then
-            ReportSelections.SetRange("Language Code", '');
+            if CustomReportSelection.IsEmpty() then
+                CustomReportSelection.SetRange("Language Code", '');
 
-        ReturnValue := this.AddOneSubjectToEmailMessage(ReportSelections.FindFirst(), ReportSelections."Report ID", ReportSelections."Subject Layout Code");
+            IsFindFirst := CustomReportSelection.FindFirst();
+            ReportID := CustomReportSelection."Report ID";
+            LayoutCode := CustomReportSelection."Email Subject Layout Code";
+        end;
+
+        if (not IsFindFirst) or (ReportID = 0) or (LayoutCode = '') then begin
+            ReportSelections.Reset();
+            ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
+            ReportSelections.SetRange("Use for Email Subject", true);
+            ReportSelections.SetRange("Language Code", this.LanguageCode);
+
+            if ReportSelections.IsEmpty() then
+                ReportSelections.SetRange("Language Code", '');
+
+            IsFindFirst := ReportSelections.FindFirst();
+            ReportID := ReportSelections."Report ID";
+            LayoutCode := ReportSelections."Email Subject Layout Code";
+        end;
+
+        ReturnValue := this.AddOneSubjectToEmailMessage(IsFindFirst, ReportID, LayoutCode);
     end;
 
     procedure AddBodyReportSelections() ReturnValue: Text;
     var
         ReportSelections: Record "Report Selections";
+        CustomReportSelection: Record "Custom Report Selection";
         AuxBodyText: Text;
+        ReportID: Integer;
+        LayoutCode: Code[20];
+        IsFindFirst: Boolean;
     begin
         if this.HideAddBody then
             exit;
@@ -187,22 +220,51 @@ codeunit 60007 "Mgt. Send Mail"
 
         Clear(AuxBodyText);
         Clear(this.ReportLayoutSelection);
+        Clear(IsFindFirst);
+        Clear(ReportID);
+        Clear(LayoutCode);
 
-        ReportSelections.Reset();
-        ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
-        ReportSelections.SetRange("Use for Email Body", true);
-        ReportSelections.SetRange("Language Code", this.LanguageCode);
+        if (this.SourceType <> 0) and (this.SourceNo <> '') then begin
+            CustomReportSelection.Reset();
+            CustomReportSelection.SetRange("Source Type", this.SourceType);
+            CustomReportSelection.SetRange("Source No.", this.SourceNo);
+            CustomReportSelection.SetRange(Usage, this.ReportSelectionUsage);
+            CustomReportSelection.SetRange("Use for Email Body", true);
+            CustomReportSelection.SetRange("Language Code", this.LanguageCode);
 
-        if ReportSelections.IsEmpty() then
-            ReportSelections.SetRange("Language Code", '');
+            if CustomReportSelection.IsEmpty() then
+                CustomReportSelection.SetRange("Language Code", '');
 
-        ReturnValue := this.AddOneBodyToEmailMessage(ReportSelections.FindFirst(), ReportSelections."Report ID", ReportSelections."Email Body Layout Code");
+            IsFindFirst := CustomReportSelection.FindFirst();
+            ReportID := CustomReportSelection."Report ID";
+            LayoutCode := CustomReportSelection."Email Body Layout Code";
+        end;
+
+        if (not IsFindFirst) or (ReportID = 0) or (LayoutCode = '') then begin
+            ReportSelections.Reset();
+            ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
+            ReportSelections.SetRange("Use for Email Body", true);
+            ReportSelections.SetRange("Language Code", this.LanguageCode);
+
+            if ReportSelections.IsEmpty() then
+                ReportSelections.SetRange("Language Code", '');
+
+            IsFindFirst := CustomReportSelection.FindFirst();
+            ReportID := CustomReportSelection."Report ID";
+            LayoutCode := CustomReportSelection."Email Body Layout Code";
+        end;
+
+        ReturnValue := this.AddOneBodyToEmailMessage(IsFindFirst, ReportID, LayoutCode);
     end;
 
     procedure AddAttachmentReportSelections(FileName: Text[250])
     var
         ReportSelections: Record "Report Selections";
+        CustomReportSelection: Record "Custom Report Selection";
         VersionFileName: Integer;
+        ReportID: Integer;
+        LayoutCode: Code[20];
+        IsFindFirst: Boolean;
     begin
         if this.HideAddAttachment then
             exit;
@@ -214,18 +276,49 @@ codeunit 60007 "Mgt. Send Mail"
 
         this.ChangeGlobalLanguaje(this.LanguageCode);
 
-        ReportSelections.Reset();
-        ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
-        ReportSelections.SetRange("Use for Email Attachment", true);
-        ReportSelections.SetRange("Language Code", this.LanguageCode);
+        Clear(IsFindFirst);
+        Clear(ReportID);
+        Clear(LayoutCode);
 
-        if ReportSelections.IsEmpty() then
-            ReportSelections.SetRange("Language Code", '');
+        if (this.SourceType <> 0) and (this.SourceNo <> '') then begin
+            CustomReportSelection.Reset();
+            CustomReportSelection.SetRange("Source Type", this.SourceType);
+            CustomReportSelection.SetRange("Source No.", this.SourceNo);
+            CustomReportSelection.SetRange(Usage, this.ReportSelectionUsage);
+            CustomReportSelection.SetRange("Use for Email Attachment", true);
+            CustomReportSelection.SetRange("Language Code", this.LanguageCode);
 
-        if ReportSelections.FindSet() then
-            repeat
-                this.AddOneAttachmentToEmailMessage(VersionFileName, ReportSelections."Report ID", FileName, ReportSelections."Custom Report Layout Code");
-            until ReportSelections.Next() = 0;
+            if CustomReportSelection.IsEmpty() then
+                CustomReportSelection.SetRange("Language Code", '');
+
+            if CustomReportSelection.FindSet() then
+                repeat
+                    IsFindFirst := true;
+                    ReportID := CustomReportSelection."Report ID";
+                    LayoutCode := CustomReportSelection."Email Body Layout Code";
+
+                    this.AddOneAttachmentToEmailMessage(VersionFileName, ReportID, FileName, LayoutCode);
+                until CustomReportSelection.Next() = 0;
+        end;
+
+        if not IsFindFirst then begin
+            ReportSelections.Reset();
+            ReportSelections.SetRange(Usage, this.ReportSelectionUsage);
+            ReportSelections.SetRange("Use for Email Attachment", true);
+            ReportSelections.SetRange("Language Code", this.LanguageCode);
+
+            if ReportSelections.IsEmpty() then
+                ReportSelections.SetRange("Language Code", '');
+
+            if ReportSelections.FindSet() then
+                repeat
+                    IsFindFirst := true;
+                    ReportID := CustomReportSelection."Report ID";
+                    LayoutCode := CustomReportSelection."Email Body Layout Code";
+
+                    this.AddOneAttachmentToEmailMessage(VersionFileName, ReportID, FileName, LayoutCode);
+                until ReportSelections.Next() = 0;
+        end;
 
         if this.LanguageCode <> '' then
             GlobalLanguage(this.InitLanguageID);
@@ -534,6 +627,12 @@ codeunit 60007 "Mgt. Send Mail"
     begin
         this.SkipHtmlFormatting := true;
     end;
+
+    procedure SetParametersCustomReportSelection(NewSourceType: Integer; NewSourceNo: Code[20])
+    begin
+        this.SourceType := NewSourceType;
+        this.SourceNo := NewSourceNo;
+    end;
     #endregion
 
     #region FUNCIONES LOCALES
@@ -810,6 +909,7 @@ codeunit 60007 "Mgt. Send Mail"
     begin
         //evento para que no imprima los que estan marcados
         TempAttachReportSelections.SetRange("Mail Only Option", false);
+        CustomReportSelection.SetRange("Mail Only Option", false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnSendToDiskForCustOnBeforeFindReportUsage, '', false, false)]
@@ -831,6 +931,32 @@ codeunit 60007 "Mgt. Send Mail"
     begin
         //evento para que no imprima los que estan marcados
         FilterReportSelections.SetRange("Mail Only Option", false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnBeforeGetCustomReportSelection, '', false, false)]
+    local procedure T77_OnBeforeGetCustomReportSelection(var ReportSelections: Record "Report Selections"; var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+        //evento para que no imprima los que estan marcados
+        CustomReportSelection.SetRange("Mail Only Option", false);
+    end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnCopyToReportSelectionOnBeforInsertToReportSelections, '', false, false)]
+    local procedure T77_OnCopyToReportSelectionOnBeforInsertToReportSelections(var ReportSelections: Record "Report Selections"; CustomReportSelection: Record "Custom Report Selection")
+    begin
+        //evento para que no imprima los que estan marcados
+        ReportSelections."Use for Email Subject" := CustomReportSelection."Use for Email Subject";
+        ReportSelections."Email Subject Layout Descr." := CustomReportSelection."Email Subject Layout Descr.";
+        ReportSelections."Email Subject Layout Code" := CustomReportSelection."Email Subject Layout Code";
+        ReportSelections."Language Code" := CustomReportSelection."Language Code";
+        ReportSelections."Mail Only Option" := CustomReportSelection."Mail Only Option";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Custom Report Selection", OnAfterInsertEvent, '', false, false)]
+    local procedure T9657_OnAfterInsertEvent(var Rec: Record "Custom Report Selection")
+    begin
+        //evento para controlar que siempre este en false el campo "Use for Email Attachment"
+        Rec."Use for Email Attachment" := false;
     end;
     #endregion
 
@@ -861,4 +987,6 @@ codeunit 60007 "Mgt. Send Mail"
         LanguageCode: Code[10];
         InitLanguageID: Integer;
         AttachmentFormat: ReportFormat;
+        SourceType: Integer;
+        SourceNo: Code[20];
 }

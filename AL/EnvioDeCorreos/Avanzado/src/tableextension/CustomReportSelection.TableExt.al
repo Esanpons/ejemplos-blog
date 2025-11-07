@@ -39,7 +39,7 @@ tableextension 60045 "Custom Report Selection" extends "Custom Report Selection"
 
             trigger OnValidate()
             begin
-                CalcFields(Rec."Email Subject Layout Descr.");
+                Rec.CalcFields(Rec."Email Subject Layout Descr.");
             end;
         }
 
@@ -68,7 +68,9 @@ tableextension 60045 "Custom Report Selection" extends "Custom Report Selection"
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
-        if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
-            Rec.Validate("Email Subject Layout Code", CustomReportLayout.Code);
+        if not CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+            exit;
+
+        Rec."Email Subject Layout Code" := CustomReportLayout.Code;
     end;
 }

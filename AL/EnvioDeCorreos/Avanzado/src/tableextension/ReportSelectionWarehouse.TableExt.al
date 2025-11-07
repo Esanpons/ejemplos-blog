@@ -23,13 +23,13 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
             trigger OnValidate()
             begin
                 if not Rec."Use for Email Subject" then
-                    Rec.Validate("Subject Layout Code", '');
+                    Rec.Validate("Email Subject Layout Code", '');
             end;
         }
 
         field(60001; "Email Subject Layout Descr."; Text[250])
         {
-            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Subject Layout Code")));
+            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Email Subject Layout Code")));
             Caption = 'Email Subject Design', Comment = 'ESP="Diseño del asunto del correo electronico"';
             Editable = false;
             FieldClass = FlowField;
@@ -39,14 +39,14 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
                 LookupLayout_Subject();
             end;
         }
-        field(60002; "Subject Layout Code"; Code[20])
+        field(60002; "Email Subject Layout Code"; Code[20])
         {
             Caption = 'Email Subject Layout Code', Comment = 'ESP="Código de diseño de informe personalizado del asunto"';
             DataClassification = CustomerContent;
-            TableRelation = "Custom Report Layout".Code where(Code = field("Subject Layout Code"), "Report ID" = field("Report ID"));
+            TableRelation = "Custom Report Layout".Code where(Code = field("Email Subject Layout Code"), "Report ID" = field("Report ID"));
             trigger OnValidate()
             begin
-                CalcFields(Rec."Email Subject Layout Descr.");
+                Rec.CalcFields(Rec."Email Subject Layout Descr.");
             end;
         }
 
@@ -62,7 +62,7 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
         }
         field(60007; "Email Attach. Layout Descr."; Text[250])
         {
-            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Subject Layout Code")));
+            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Custom Report Layout Code")));
             Caption = 'Email Attachments Design', Comment = 'ESP="Diseño del adjunto del correo electronico"';
             Editable = false;
             FieldClass = FlowField;
@@ -77,6 +77,11 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
             Caption = 'Email Attachments Design Code', Comment = 'ESP="Código del adjunto del correo electronico"';
             Editable = false;
             TableRelation = "Custom Report Layout".Code where(Code = field("Custom Report Layout Code"), "Built-In" = const(false));
+
+            trigger OnValidate()
+            begin
+                rec.CalcFields(Rec."Email Attach. Layout Descr.");
+            end;
         }
 
         field(60020; "Use for Email Attachment"; Boolean)
@@ -111,9 +116,9 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
             trigger OnValidate()
             begin
                 if "Email Body Layout Code" <> '' then
-                    Testfield("Use for Email Body", true);
+                    Rec.Testfield("Use for Email Body", true);
 
-                Calcfields("Email Body Layout Descr.");
+                Rec.Calcfields("Email Body Layout Descr.");
             end;
         }
         field(60031; "Email Body Layout Descr."; Text[250])
@@ -138,30 +143,35 @@ tableextension 60047 "Report Selection Warehouse" extends "Report Selection Ware
         key(FK02; "Use for Email Subject") { }
     }
 
+    procedure LookupLayout_Subject()
+    var
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        if not CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+            exit;
+
+        Rec.Validate("Email Subject Layout Code", CustomReportLayout.Code);
+    end;
+
     procedure LookupLayout_Attachment()
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
-        if CustomReportLayout.LookupLayoutOK("Report ID") then
-            Rec.Validate("Custom Report Layout Code", CustomReportLayout.Code);
+        if not CustomReportLayout.LookupLayoutOK("Report ID") then
+            exit;
+
+        Rec.Validate("Custom Report Layout Code", CustomReportLayout.Code);
     end;
 
     procedure LookupLayout_Body()
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
-        if CustomReportLayout.LookupLayoutOK("Report ID") then
-            Validate("Email Body Layout Code", CustomReportLayout.Code);
-    end;
+        if not CustomReportLayout.LookupLayoutOK("Report ID") then
+            exit;
 
-    procedure LookupLayout_Subject()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
-            Rec.Validate("Subject Layout Code", CustomReportLayout.Code);
+        Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
     end;
-
 
     procedure DrillDownToSelectLayout(var SelectedLayoutName: Text[250]; var SelectedLayoutAppID: Guid)
     var

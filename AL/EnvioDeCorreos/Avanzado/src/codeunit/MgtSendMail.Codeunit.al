@@ -249,9 +249,9 @@ codeunit 60007 "Mgt. Send Mail"
             if ReportSelections.IsEmpty() then
                 ReportSelections.SetRange("Language Code", '');
 
-            IsFindFirst := CustomReportSelection.FindFirst();
-            ReportID := CustomReportSelection."Report ID";
-            LayoutCode := CustomReportSelection."Email Body Layout Code";
+            IsFindFirst := ReportSelections.FindFirst();
+            ReportID := ReportSelections."Report ID";
+            LayoutCode := ReportSelections."Email Body Layout Code";
         end;
 
         ReturnValue := this.AddOneBodyToEmailMessage(IsFindFirst, ReportID, LayoutCode);
@@ -313,8 +313,8 @@ codeunit 60007 "Mgt. Send Mail"
             if ReportSelections.FindSet() then
                 repeat
                     IsFindFirst := true;
-                    ReportID := CustomReportSelection."Report ID";
-                    LayoutCode := CustomReportSelection."Email Body Layout Code";
+                    ReportID := ReportSelections."Report ID";
+                    LayoutCode := ReportSelections."Email Body Layout Code";
 
                     this.AddOneAttachmentToEmailMessage(VersionFileName, ReportID, FileName, LayoutCode);
                 until ReportSelections.Next() = 0;
@@ -350,7 +350,7 @@ codeunit 60007 "Mgt. Send Mail"
         if ReportSelectionWarehouse.IsEmpty() then
             ReportSelectionWarehouse.SetRange("Language Code", '');
 
-        ReturnValue := this.AddOneSubjectToEmailMessage(ReportSelectionWarehouse.FindFirst(), ReportSelectionWarehouse."Report ID", ReportSelectionWarehouse."Subject Layout Code");
+        ReturnValue := this.AddOneSubjectToEmailMessage(ReportSelectionWarehouse.FindFirst(), ReportSelectionWarehouse."Report ID", ReportSelectionWarehouse."Email Subject Layout Code");
     end;
 
     procedure AddBodyReportSelectionWarehouse() ReturnValue: Text;
@@ -941,16 +941,6 @@ codeunit 60007 "Mgt. Send Mail"
     end;
 
 
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnCopyToReportSelectionOnBeforInsertToReportSelections, '', false, false)]
-    local procedure T77_OnCopyToReportSelectionOnBeforInsertToReportSelections(var ReportSelections: Record "Report Selections"; CustomReportSelection: Record "Custom Report Selection")
-    begin
-        //evento para que no imprima los que estan marcados
-        ReportSelections."Use for Email Subject" := CustomReportSelection."Use for Email Subject";
-        ReportSelections."Email Subject Layout Descr." := CustomReportSelection."Email Subject Layout Descr.";
-        ReportSelections."Email Subject Layout Code" := CustomReportSelection."Email Subject Layout Code";
-        ReportSelections."Language Code" := CustomReportSelection."Language Code";
-        ReportSelections."Mail Only Option" := CustomReportSelection."Mail Only Option";
-    end;
 
     [EventSubscriber(ObjectType::Table, Database::"Custom Report Selection", OnAfterInsertEvent, '', false, false)]
     local procedure T9657_OnAfterInsertEvent(var Rec: Record "Custom Report Selection")

@@ -53,7 +53,7 @@ pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
 
                 trigger OnDrillDown()
                 begin
-                    Rec.LookupLayout_Attachment();
+                    Rec.LookupLayout_Subject();
                 end;
             }
         }

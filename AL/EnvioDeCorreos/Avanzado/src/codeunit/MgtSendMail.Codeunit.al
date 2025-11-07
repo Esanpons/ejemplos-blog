@@ -172,7 +172,7 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelections.IsEmpty() then
-            ReportSelections.SetRange("Language Code");
+            ReportSelections.SetRange("Language Code", '');
 
         if ReportSelections.FindFirst() then begin
             Clear(this.TempBlob);
@@ -237,7 +237,7 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelections.IsEmpty() then
-            ReportSelections.SetRange("Language Code");
+            ReportSelections.SetRange("Language Code", '');
 
         if ReportSelections.FindFirst() then begin
             Clear(this.TempBlob);
@@ -293,7 +293,7 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelections.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelections.IsEmpty() then
-            ReportSelections.SetRange("Language Code");
+            ReportSelections.SetRange("Language Code", '');
 
         if ReportSelections.FindSet() then
             repeat
@@ -347,7 +347,7 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelectionWarehouse.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelectionWarehouse.IsEmpty() then
-            ReportSelectionWarehouse.SetRange("Language Code");
+            ReportSelectionWarehouse.SetRange("Language Code", '');
 
         if ReportSelectionWarehouse.FindFirst() then begin
             Clear(this.TempBlob);
@@ -411,7 +411,7 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelectionWarehouse.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelectionWarehouse.IsEmpty() then
-            ReportSelectionWarehouse.SetRange("Language Code");
+            ReportSelectionWarehouse.SetRange("Language Code", '');
 
         if ReportSelectionWarehouse.FindFirst() then begin
             Clear(this.TempBlob);
@@ -467,7 +467,7 @@ codeunit 60007 "Mgt. Send Mail"
         ReportSelectionWarehouse.SetRange("Language Code", this.LanguageCode);
 
         if ReportSelectionWarehouse.IsEmpty() then
-            ReportSelectionWarehouse.SetRange("Language Code");
+            ReportSelectionWarehouse.SetRange("Language Code", '');
 
         if ReportSelectionWarehouse.FindSet() then
             repeat
@@ -837,6 +837,13 @@ codeunit 60007 "Mgt. Send Mail"
                 DocumentTypeText := SEPAMandateTxt;
 
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnAfterInsertEvent, '', false, false)]
+    local procedure T77_OnAfterInsertEvent(var Rec: Record "Report Selections")
+    begin
+        //evento para controlar que siempre este en false el campo "Use for Email Attachment"
+        Rec."Use for Email Attachment" := false;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Report Selections", OnBeforeCheckEmailBodyUsage, '', false, false)]

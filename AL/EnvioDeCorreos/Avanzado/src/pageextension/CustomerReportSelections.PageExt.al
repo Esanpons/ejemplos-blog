@@ -1,8 +1,4 @@
-namespace SendMail.Base;
-using Microsoft.Foundation.Reporting;
-using Microsoft.Sales.Setup;
-
-pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
+pageextension 55204 "Customer Report Selections" extends "Customer Report Selections"
 {
     // #Creado por Esteve Sanpons Carballares.
     // #https://github.com/Esanpons
@@ -10,18 +6,6 @@ pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
 
     layout
     {
-        modify("EmailLayoutCaption")
-        {
-            Visible = false;
-        }
-        modify("Email Body Layout Description")
-        {
-            Visible = true;
-        }
-        modify("ReportLayoutCaption")
-        {
-            Visible = false;
-        }
 
         addafter("Use for Email Attachment")
         {
@@ -46,6 +30,7 @@ pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
         }
         addbefore("Email Body Layout Description")
         {
+
             field("jbcUT Subject Layout Descr."; Rec."Email Subject Layout Descr.")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
@@ -53,20 +38,7 @@ pageextension 60025 "ReportSelectionSales" extends "Report Selection - Sales"
 
                 trigger OnDrillDown()
                 begin
-                    Rec.LookupLayout_Attachment();
-                end;
-            }
-        }
-        addafter("Email Body Layout Description")
-        {
-            field("jbcUT Email Attach. Layout Descr."; Rec."Email Attach. Layout Descr.")
-            {
-                ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
-                ApplicationArea = All;
-
-                trigger OnDrillDown()
-                begin
-                    Rec.LookupLayout_Attachment();
+                    Rec.LookupLayout_Subject();
                 end;
             }
         }

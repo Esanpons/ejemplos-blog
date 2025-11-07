@@ -224,12 +224,13 @@ codeunit 60007 "Mgt. Send Mail"
 
         if ReportSelections.FindSet() then
             repeat
-                this.AddOneAttachmentToEmailMessage(VersionFileName, ReportSelections."Report ID", FileName);
+                this.AddOneAttachmentToEmailMessage(VersionFileName, ReportSelections."Report ID", FileName, ReportSelections."Custom Report Layout Code");
             until ReportSelections.Next() = 0;
 
         if this.LanguageCode <> '' then
             GlobalLanguage(this.InitLanguageID);
     end;
+
     #endregion
 
     #region FUNCIONES ADD REPORT SELECTION WAREHOUSE
@@ -307,12 +308,134 @@ codeunit 60007 "Mgt. Send Mail"
 
         if ReportSelectionWarehouse.FindSet() then
             repeat
-                this.AddOneAttachmentToEmailMessage(VersionFileName, ReportSelectionWarehouse."Report ID", FileName)
+                this.AddOneAttachmentToEmailMessage(VersionFileName, ReportSelectionWarehouse."Report ID", FileName, ReportSelectionWarehouse."Custom Report Layout Code")
             until ReportSelectionWarehouse.Next() = 0;
 
         if this.LanguageCode <> '' then
             GlobalLanguage(this.InitLanguageID);
     end;
+
+    #endregion
+
+    #region FUNCIONES ADD LAYOUT
+
+    local procedure AddOneSubjectToEmailMessage(IsFindFirst: Boolean; ReportID: Integer; LayoutCode: Code[20]) ReturnValue: Text
+    var
+        AuxSubjectTxt: Text;
+        InitPosition: Integer;
+        Length: Integer;
+        Text001Lbl: Label ' / ', Locked = true;
+    begin
+        if IsFindFirst then begin
+            Clear(this.TempBlob);
+            Clear(this.OutStream);
+            Clear(this.InStream);
+
+            this.ChangeGlobalLanguaje(this.LanguageCode);
+
+            if LayoutCode <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
+
+            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+            REPORT.SaveAs(ReportID, '', ReportFormat::Html, this.OutStream, this.RecordRef);
+            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+            this.InStream.Read(AuxSubjectTxt);
+
+            if LayoutCode <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected('');
+
+            //buscamos la posicion incial y el tamaño del texto
+            InitPosition := StrPos(AuxSubjectTxt, '<span>') + 6;
+            Length := StrPos(AuxSubjectTxt, '</span>');
+            Length := Length - InitPosition;
+
+            AuxSubjectTxt := CopyStr(AuxSubjectTxt, InitPosition, Length);
+        end;
+
+
+        if this.SubjectTxt <> '' then
+            this.SubjectTxt += Text001Lbl;
+
+        this.SubjectTxt += AuxSubjectTxt;
+
+        if this.SubjectTxt = '' then
+            this.SubjectTxt := this.CreateSubject();
+
+        ReturnValue := this.SubjectTxt;
+
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
+
+        this.EmailMessage.SetSubject(this.SubjectTxt);
+    end;
+
+    local procedure AddOneBodyToEmailMessage(IsFindFirst: Boolean; ReportID: Integer; LayoutCode: Code[20]) ReturnValue: Text
+    var
+        AuxBodyText: Text;
+        Text001Lbl: Label '<br> <br> <hr> <br> <br> <br> <br>', Locked = true;
+    begin
+        if IsFindFirst then begin
+            Clear(this.TempBlob);
+            Clear(this.OutStream);
+            Clear(this.InStream);
+
+            this.ChangeGlobalLanguaje(this.LanguageCode);
+
+            if LayoutCode <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
+
+            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+            REPORT.SaveAs(ReportID, '', ReportFormat::Html, this.OutStream, this.RecordRef);
+            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+            this.InStream.Read(AuxBodyText);
+
+            if LayoutCode <> '' then
+                this.ReportLayoutSelection.SetTempLayoutSelected('');
+        end;
+
+        if this.BodyText <> '' then
+            this.BodyText += Text001Lbl;
+
+        this.BodyText += AuxBodyText;
+
+        ReturnValue := this.BodyText;
+
+        if this.LanguageCode <> '' then
+            GlobalLanguage(this.InitLanguageID);
+
+        this.EmailMessage.SetBody(this.BodyText);
+    end;
+
+    local procedure AddOneAttachmentToEmailMessage(var VersionFileName: Integer; ReportID: Integer; FileName: Text[250]; LayoutCode: Code[20])
+    var
+        l_FileName: Text[250];
+    begin
+        l_FileName := FileName;
+        this.SelectAttachmentFormat(ReportID);
+
+        Clear(this.TempBlob);
+        Clear(this.OutStream);
+        Clear(this.InStream);
+
+        VersionFileName += 1;
+
+        if VersionFileName > 1 then
+            l_FileName += '_' + Format(VersionFileName);
+
+        l_FileName := CopyStr(l_FileName + '.' + format(this.ContentTypeAddAttachment), 1, 250);
+
+        if LayoutCode <> '' then
+            this.ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
+
+        this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
+        REPORT.SaveAs(ReportID, '', this.AttachmentFormat, this.OutStream, this.RecordRef);
+        this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
+        this.EmailMessage.AddAttachment(l_FileName, this.ContentTypeAddAttachment, this.InStream);
+
+        if LayoutCode <> '' then
+            this.ReportLayoutSelection.SetTempLayoutSelected('');
+    end;
+
     #endregion
 
     #region FUNCIONES ADD VARIOS
@@ -638,116 +761,6 @@ codeunit 60007 "Mgt. Send Mail"
             until AllDocRecordRef.Next() = 0;
     end;
 
-    local procedure AddOneSubjectToEmailMessage(IsFindFirst: Boolean; ReportID: Integer; SubjectLayoutCode: Code[20]) ReturnValue: Text
-    var
-        AuxSubjectTxt: Text;
-        InitPosition: Integer;
-        Length: Integer;
-        Text001Lbl: Label ' / ', Locked = true;
-    begin
-        if IsFindFirst then begin
-            Clear(this.TempBlob);
-            Clear(this.OutStream);
-            Clear(this.InStream);
-
-            this.ChangeGlobalLanguaje(this.LanguageCode);
-
-            if SubjectLayoutCode <> '' then
-                this.ReportLayoutSelection.SetTempLayoutSelected(SubjectLayoutCode);
-
-            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
-            REPORT.SaveAs(ReportID, '', ReportFormat::Html, this.OutStream, this.RecordRef);
-            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
-            this.InStream.Read(AuxSubjectTxt);
-
-            if SubjectLayoutCode <> '' then
-                this.ReportLayoutSelection.SetTempLayoutSelected('');
-
-            //buscamos la posicion incial y el tamaño del texto
-            InitPosition := StrPos(AuxSubjectTxt, '<span>') + 6;
-            Length := StrPos(AuxSubjectTxt, '</span>');
-            Length := Length - InitPosition;
-
-            AuxSubjectTxt := CopyStr(AuxSubjectTxt, InitPosition, Length);
-        end;
-
-
-        if this.SubjectTxt <> '' then
-            this.SubjectTxt += Text001Lbl;
-
-        this.SubjectTxt += AuxSubjectTxt;
-
-        if this.SubjectTxt = '' then
-            this.SubjectTxt := this.CreateSubject();
-
-        ReturnValue := this.SubjectTxt;
-
-        if this.LanguageCode <> '' then
-            GlobalLanguage(this.InitLanguageID);
-
-        this.EmailMessage.SetSubject(this.SubjectTxt);
-    end;
-
-    local procedure AddOneBodyToEmailMessage(IsFindFirst: Boolean; ReportID: Integer; LayoutCode: Code[20]) ReturnValue: Text
-    var
-        AuxBodyText: Text;
-        Text001Lbl: Label '<br> <br> <hr> <br> <br> <br> <br>', Locked = true;
-    begin
-        if IsFindFirst then begin
-            Clear(this.TempBlob);
-            Clear(this.OutStream);
-            Clear(this.InStream);
-
-            this.ChangeGlobalLanguaje(this.LanguageCode);
-
-            if LayoutCode <> '' then
-                this.ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
-
-            this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
-            REPORT.SaveAs(ReportID, '', ReportFormat::Html, this.OutStream, this.RecordRef);
-            this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
-            this.InStream.Read(AuxBodyText);
-
-            if LayoutCode <> '' then
-                this.ReportLayoutSelection.SetTempLayoutSelected('');
-        end;
-
-        if this.BodyText <> '' then
-            this.BodyText += Text001Lbl;
-
-        this.BodyText += AuxBodyText;
-
-        ReturnValue := this.BodyText;
-
-        if this.LanguageCode <> '' then
-            GlobalLanguage(this.InitLanguageID);
-
-        this.EmailMessage.SetBody(this.BodyText);
-    end;
-
-    local procedure AddOneAttachmentToEmailMessage(var VersionFileName: Integer; ReportID: Integer; FileName: Text[250])
-    var
-        l_FileName: Text[250];
-    begin
-        l_FileName := FileName;
-        this.SelectAttachmentFormat(ReportID);
-
-        Clear(this.TempBlob);
-        Clear(this.OutStream);
-        Clear(this.InStream);
-
-        VersionFileName += 1;
-
-        if VersionFileName > 1 then
-            l_FileName += '_' + Format(VersionFileName);
-
-        l_FileName := CopyStr(l_FileName + '.' + format(this.ContentTypeAddAttachment), 1, 250);
-
-        this.TempBlob.CreateOutStream(this.OutStream, TextEncoding::UTF8);
-        REPORT.SaveAs(ReportID, '', this.AttachmentFormat, this.OutStream, this.RecordRef);
-        this.TempBlob.CreateInStream(this.InStream, TextEncoding::UTF8);
-        this.EmailMessage.AddAttachment(l_FileName, this.ContentTypeAddAttachment, this.InStream);
-    end;
     #endregion
 
     #region eventos

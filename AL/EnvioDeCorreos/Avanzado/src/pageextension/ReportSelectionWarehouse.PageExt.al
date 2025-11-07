@@ -12,66 +12,60 @@ pageextension 60026 "ReportSelectionWarehouse" extends "Report Selection - Wareh
     {
         addlast("Control1")
         {
-            field("Mail Only Option"; Rec."Mail Only Option")
+            field("jbcUT Mail Only Option"; Rec."Mail Only Option")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
             }
-            field("Use for Email Subject"; Rec."Use for Email Subject")
+            field("jbcUT Use for Email Subject"; Rec."Use for Email Subject")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
             }
-            field("Use for Email Body"; Rec."Use for Email Body")
+            field("jbcUT Use for Email Body"; Rec."Use for Email Body")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
             }
-            field("Use for Email Attachment"; Rec."Use for Email Attachment")
+            field("jbcUT Use for Email Attachment"; Rec."Use for Email Attachment")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
             }
-            field("Language Code"; Rec."Language Code")
+            field("jbcUT Language Code"; Rec."Language Code")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
             }
-            field("ReportLayoutCaption"; Rec."Report Layout Caption")
+
+            field("jbcUT Subject Layout Descr."; Rec."Email Subject Layout Descr.")
             {
-                ToolTip = 'Specifies the Name of the report layout that is used.', comment = 'ESP="Especifica el nombre del diseño del informe que se utiliza."';
+                ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
 
                 trigger OnDrillDown()
                 begin
-                    Rec.DrillDownToSelectLayout(Rec."Report Layout Name", Rec."Report Layout AppID");
-                    CurrPage.Update(true);
+                    Rec.LookupLayout_Subject();
                 end;
             }
-            field("Subject Layout Descr."; Rec."Subject Layout Descr.")
+            field("jbcUT Email Body Layout Description"; Rec."Email Body Layout Descr.")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
 
                 trigger OnDrillDown()
-                var
-                    CustomReportLayout: Record "Custom Report Layout";
                 begin
-                    if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
-                        Rec.Validate("Subject Layout Code", CustomReportLayout.Code);
+                    Rec.LookupLayout_Body();
                 end;
             }
-            field("Email Body Layout Description"; Rec."EmailBodyLayoutDescription")
+            field("jbcUT Email Attach. Layout Descr."; Rec."Email Attach. Layout Descr.")
             {
                 ToolTip = 'Specifies the value of the field', comment = 'ESP="Especifica el valor del campo"';
                 ApplicationArea = All;
 
                 trigger OnDrillDown()
-                var
-                    CustomReportLayout: Record "Custom Report Layout";
                 begin
-                    if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
-                        Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
+                    Rec.LookupLayout_Attachment();
                 end;
             }
 

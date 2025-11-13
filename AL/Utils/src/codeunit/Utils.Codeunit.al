@@ -564,6 +564,69 @@ codeunit 59001 "Utils"
         if GuiAllowed() then
             Error(ErrorInfo);
     end;
+
+    procedure ShowErrorMessagesForRecords(MessageText: Text[2048]; FieldNo: Integer; RecVariant: Variant)
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        DataTypeManagement: Codeunit "Data Type Management";
+        RecordRef: RecordRef;
+        OneRecVariant: Variant;
+    begin
+        if not GuiAllowed() then
+            Error(MessageText);
+
+        // Obtener RecordRef del variant (mantiene filtros/claves)
+        if not DataTypeManagement.GetRecordRef(RecVariant, RecordRef) then
+            Error(MessageText);
+
+        // Recorrer el conjunto filtrado 
+        if not RecordRef.FindSet() then
+            // si no hay registros, lanza error simple
+            Error(MessageText);
+
+        repeat
+            // pasar como Variant
+            Clear(OneRecVariant);
+            OneRecVariant := RecordRef;
+            this.AddErrorMessagesForRecord(TempErrorMessage, OneRecVariant, FieldNo, MessageText);
+        until RecordRef.Next() = 0;
+
+        // Mostrar la lista estándar y forzar rollback si hay errores
+        TempErrorMessage.Reset();
+        TempErrorMessage.ShowErrorMessages(true);
+    end;
+
+    procedure SimpleErrorMessage(MessageText: Text[2048])
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        Clear(TempErrorMessage);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MessageText);
+        TempErrorMessage.ShowErrorMessages(true);
+    end;
+
+    procedure AddErrorMessagesForRecord(var TempErrorMessage: Record "Error Message" temporary; RecVariant: Variant; FieldNo: Integer; MessageText: Text[2048])
+    var
+        AdditionalInformation: Text[250];
+        SupportUrl: Text[250];
+    begin
+        this.AddErrorMessagesForRecord(TempErrorMessage, RecVariant, FieldNo, MessageText, AdditionalInformation, SupportUrl);
+    end;
+
+    procedure AddErrorMessagesForRecord(var TempErrorMessage: Record "Error Message" temporary; RecVariant: Variant; FieldNo: Integer; MessageText: Text[2048]; AdditionalInformation: Text[250]; SupportUrl: Text[250])
+    begin
+        TempErrorMessage.SetContext(RecVariant);
+        TempErrorMessage.LogDetailedMessage(
+            RecVariant,
+            FieldNo,
+            TempErrorMessage."Message Type"::Error,
+            MessageText,
+            AdditionalInformation,
+            SupportUrl);
+
+        TempErrorMessage.Validate("Context Field Number", FieldNo);
+        TempErrorMessage.Modify();
+    end;
     #endregion
 
     #region RecordLink
@@ -1116,6 +1179,40 @@ codeunit 59001 "Utils"
     #endregion
 
     #region Varios
+
+    procedure SearchContactFromClient(CustomerNo: Code[20]; var Contact: Record Contact) ReturnValue: Boolean
+    var
+        Customer: Record Customer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        CustContUpdate: Codeunit "CustCont-Update";
+    begin
+        Clear(ReturnValue);
+        if not Customer.Get(CustomerNo) then
+            exit;
+
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Customer."No.");
+        if not ContactBusinessRelation.FindFirst() then begin
+            Clear(CustContUpdate);
+            CustContUpdate.InsertNewContact(Customer, false);
+            if not ContactBusinessRelation.FindFirst() then
+                exit;
+        end;
+
+        Contact.Reset();
+        Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.");
+        if Contact.IsEmpty() then begin
+            Contact.SetRange("Company No.");
+            Contact.SetRange("No.", ContactBusinessRelation."Contact No.");
+        end;
+
+        if not Contact.FindFirst() then
+            exit;
+
+        ReturnValue := true;
+    end;
+
     procedure GenerateQRCodeToText(BarcodeText: Text) QRCode: Text
     var
         BarcodeSymbology2D: Enum "Barcode Symbology 2D";

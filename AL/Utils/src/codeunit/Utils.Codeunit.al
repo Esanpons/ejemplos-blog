@@ -1178,6 +1178,71 @@ codeunit 59001 "Utils"
     end;
     #endregion
 
+    #region LOT
+
+    procedure GetNextLotNo(ItemNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
+        LotNo: Code[20];
+    begin
+        Item.Get(ItemNo);
+        if Item."Lot Nos." = '' then
+            exit;
+
+        LotNo := NoSeriesBatch.GetNextNo(
+            Item."Lot Nos.",
+            WorkDate(),
+            false // false = no oculta errores/avisos
+        );
+
+        exit(LotNo);
+    end;
+
+    procedure GeFilterLotFromSalesLine(SalesLine: record "Sales Line") ReturnValue: Text
+    var
+        ReservationEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        Clear(ReturnValue);
+
+        if SalesLine."Line No." = 0 then
+            exit;
+
+        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date");
+
+        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
+        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
+        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
+        ReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
+        if ReservationEntry.FindSet() then
+            repeat
+                if ReturnValue <> '' then
+                    ReturnValue += '|';
+
+                ReturnValue += ReservationEntry."Lot No.";
+            until ReservationEntry.Next() = 0;
+
+        TrackingSpecification.SetCurrentKey("Source ID", "Source Type", "Source Subtype",
+                                     "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+        TrackingSpecification.SetRange("Source ID", SalesLine."Document No.");
+        TrackingSpecification.SetRange("Source Type", Database::"Sales Line");
+        TrackingSpecification.SetRange("Source Subtype", SalesLine."Document Type");
+        TrackingSpecification.SetRange("Source Ref. No.", SalesLine."Line No.");
+        if TrackingSpecification.FindSet() then
+            repeat
+                if ReturnValue <> '' then
+                    ReturnValue += '|';
+
+                ReturnValue += TrackingSpecification."Lot No.";
+            until TrackingSpecification.Next() = 0;
+
+    end;
+
+
+    #endregion
+
+
     #region Varios
 
     procedure SearchContactFromClient(CustomerNo: Code[20]; var Contact: Record Contact) ReturnValue: Boolean
@@ -1225,46 +1290,6 @@ codeunit 59001 "Utils"
         BarcodeFontProvider2D := Enum::"Barcode Font Provider 2D"::IDAutomation2D;
         BarcodeSymbology2D := Enum::"Barcode Symbology 2D"::"QR-Code";
         QRCode := BarcodeFontProvider2D.EncodeFont(BarcodeText, BarcodeSymbology2D);
-    end;
-
-    procedure GeFilterLotFromSalesLine(SalesLine: record "Sales Line") ReturnValue: Text
-    var
-        ReservationEntry: Record "Reservation Entry";
-        TrackingSpecification: Record "Tracking Specification";
-    begin
-        Clear(ReturnValue);
-
-        if SalesLine."Line No." = 0 then
-            exit;
-
-        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date");
-
-        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
-        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
-        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
-        ReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
-        if ReservationEntry.FindSet() then
-            repeat
-                if ReturnValue <> '' then
-                    ReturnValue += '|';
-
-                ReturnValue += ReservationEntry."Lot No.";
-            until ReservationEntry.Next() = 0;
-
-        TrackingSpecification.SetCurrentKey("Source ID", "Source Type", "Source Subtype",
-                                     "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
-        TrackingSpecification.SetRange("Source ID", SalesLine."Document No.");
-        TrackingSpecification.SetRange("Source Type", Database::"Sales Line");
-        TrackingSpecification.SetRange("Source Subtype", SalesLine."Document Type");
-        TrackingSpecification.SetRange("Source Ref. No.", SalesLine."Line No.");
-        if TrackingSpecification.FindSet() then
-            repeat
-                if ReturnValue <> '' then
-                    ReturnValue += '|';
-
-                ReturnValue += TrackingSpecification."Lot No.";
-            until TrackingSpecification.Next() = 0;
-
     end;
 
     procedure DeleteAllDataCompany()

@@ -1,0 +1,6 @@
+.vscode/*
+*.app
+*.xlf
+extensionsPermissionSet.xml
+appmanagement.rest
+.altestrunner/*

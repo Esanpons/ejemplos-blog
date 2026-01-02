@@ -1,5 +1,8 @@
 codeunit 60005 "Mgt Assign Charge Item"
 {
+    // #Creado por Esteve Sanpons Carballares.
+    // #https://github.com/Esanpons
+    // #Se da acceso libre a modificar y utilizar este objeto libremente. Siempre y cuando se haga referencia al autor.
 
     //funcion para Asignar proporcionalmente a todas las líneas
     procedure AssignProportionallyToAllLines(ChargeSalesLine: Record "Sales Line"; var SalesLine: Record "Sales Line"; TotalQty: Decimal; TotalAmount: Decimal)

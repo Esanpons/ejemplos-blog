@@ -1180,24 +1180,37 @@ codeunit 59001 "Utils"
 
     #region LOT
 
-    procedure GetNextLotNo(ItemNo: Code[20]): Code[20]
+    procedure GetNextLotNo(ItemNo: Code[20]): Code[50]
     var
         Item: Record Item;
-        NoSeriesBatch: Codeunit "No. Series - Batch";
+        NoSeries: Codeunit "No. Series";
         LotNo: Code[20];
     begin
         Item.Get(ItemNo);
         if Item."Lot Nos." = '' then
             exit;
 
-        LotNo := NoSeriesBatch.GetNextNo(
-            Item."Lot Nos.",
-            WorkDate(),
-            false // false = no oculta errores/avisos
-        );
+        LotNo := NoSeries.GetNextNo(Item."Lot Nos.");
 
         exit(LotNo);
     end;
+
+    procedure CanReserveItem(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(ItemNo) then
+            exit(false);
+
+        if Item.Blocked then
+            exit(false);
+
+        if Item."Item Tracking Code" = '' then
+            exit(false);
+
+        exit(true);
+    end;
+
 
     procedure GeFilterLotFromSalesLine(SalesLine: record "Sales Line") ReturnValue: Text
     var

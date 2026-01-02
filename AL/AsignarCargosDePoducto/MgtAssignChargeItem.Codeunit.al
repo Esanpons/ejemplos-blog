@@ -96,4 +96,35 @@ codeunit 60005 "Mgt Assign Charge Item"
             ItemChargeAssignmentSales.Modify(true);
         end;
     end;
+
+    procedure CopyItemCharge(FromSalesLine: Record "Sales Line"; ToSalesLine: Record "Sales Line")
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        AuxItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        ItemChargeAssignmentSales.Reset();
+        ItemChargeAssignmentSales.SetRange("Document Type", ToSalesLine."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", ToSalesLine."Document No.");
+        ItemChargeAssignmentSales.SetRange("Document Line No.", ToSalesLine."Line No.");
+        ItemChargeAssignmentSales.SetRange("Item Charge No.", ToSalesLine."No.");
+        if not ItemChargeAssignmentSales.IsEmpty() then
+            ItemChargeAssignmentSales.DeleteAll(true);
+
+        ItemChargeAssignmentSales.Reset();
+        ItemChargeAssignmentSales.SetRange("Document Type", FromSalesLine."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", FromSalesLine."Document No.");
+        ItemChargeAssignmentSales.SetRange("Document Line No.", FromSalesLine."Line No.");
+        ItemChargeAssignmentSales.SetRange("Item Charge No.", FromSalesLine."No.");
+        if ItemChargeAssignmentSales.FindSet() then
+            repeat
+                AuxItemChargeAssignmentSales.Init();
+                AuxItemChargeAssignmentSales.TransferFields(ItemChargeAssignmentSales);
+                AuxItemChargeAssignmentSales.Validate("Document Type", ToSalesLine."Document Type");
+                AuxItemChargeAssignmentSales.Validate("Document No.", ToSalesLine."Document No.");
+                AuxItemChargeAssignmentSales.Validate("Document Line No.", ToSalesLine."Line No.");
+                AuxItemChargeAssignmentSales.Validate("Applies-to Doc. Type", ToSalesLine."Document Type");
+                AuxItemChargeAssignmentSales.Validate("Applies-to Doc. No.", ToSalesLine."Document No.");
+                AuxItemChargeAssignmentSales.Insert(true);
+            until ItemChargeAssignmentSales.Next() = 0;
+    end;
 }

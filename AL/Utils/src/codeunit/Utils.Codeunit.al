@@ -1255,7 +1255,6 @@ codeunit 59001 "Utils"
 
     #endregion
 
-
     #region Varios
 
     procedure SearchContactFromClient(CustomerNo: Code[20]; var Contact: Record Contact) ReturnValue: Boolean
@@ -1305,6 +1304,20 @@ codeunit 59001 "Utils"
         QRCode := BarcodeFontProvider2D.EncodeFont(BarcodeText, BarcodeSymbology2D);
     end;
 
+    procedure GenerateCode128ToText(BarcodeText: Text) Code128: Text
+    var
+        BarcodeSymbology: Enum "Barcode Symbology";
+        BarcodeFontProvider: Interface "Barcode Font Provider";
+    begin
+        //la fuente en el informe tiene que ser IDAutomation2D
+        Clear(Code128);
+        Clear(BarcodeFontProvider);
+
+        BarcodeFontProvider := Enum::"Barcode Font Provider"::IDAutomation1D;
+        BarcodeSymbology := Enum::"Barcode Symbology"::Code128;
+        Code128 := BarcodeFontProvider.EncodeFont(BarcodeText, BarcodeSymbology);
+    end;
+
     procedure DeleteAllDataCompany()
     var
         AllObj: Record AllObj;
@@ -1330,6 +1343,22 @@ codeunit 59001 "Utils"
         Clear(RecordRef);
         RecordRef.Open(TableId);
         RecordRef.DeleteAll();
+    end;
+
+    procedure IsUpperCase(InputText: Text): Boolean
+    begin
+        if InputText = '' then
+            exit(false);
+
+        exit(InputText = UpperCase(InputText));
+    end;
+
+    procedure IsLowerCase(InputText: Text): Boolean
+    begin
+        if InputText = '' then
+            exit(false);
+
+        exit(InputText = LowerCase(InputText));
     end;
     #endregion
 
